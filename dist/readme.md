@@ -5,22 +5,16 @@
 ## 1. 软件介绍
 Cursor Pro Keep Alive 是一个自动化工具，用于管理 Cursor 账号的注册和更新。该工具可以自动执行账号删除和重新注册流程，以保持账号活跃。
 
+> 在执行之前，一定要确保账号是通过 https://tempmail.plus/zh 获取的临时邮箱注册了 cursor账号。在注册账号时要设置好名字和密码。
+
 ## 2. 安装和准备
 
 ### 2.1 必要文件
 确保您有以下文件：
 - `cursor_pro_keep_alive.exe` - 主程序
 - `config.ini` - 配置文件
-- `turnstilePatch` - 插件文件夹
 
-### 2.2 文件结构
-```
-your_folder/
-├── cursor_pro_keep_alive.exe
-├── config.ini
-└── turnstilePatch/
-    └── (插件文件)
-```
+
 
 ## 3. 配置文件设置
 
@@ -59,15 +53,6 @@ last_name = your_lastname           # 姓氏
 错误提示：`配置文件不存在`
 - 解决方法：确保 `config.ini` 文件在程序同目录下
 
-### 5.2 插件加载失败
-错误提示：`插件不存在`
-- 解决方法：确保 `turnstilePatch` 文件夹在程序同目录下
-- 注意：即使插件加载失败，程序仍会继续执行
-
-### 5.3 账号注册失败
-- 检查邮箱格式是否正确（必须是 mailto.plus）
-- 确保密码符合要求
-- 检查网络连接是否正常
 
 ## 6. 注意事项
 

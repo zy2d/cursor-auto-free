@@ -26,7 +26,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='cursor_pro_keep_alive',
+    name='cursorPro',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

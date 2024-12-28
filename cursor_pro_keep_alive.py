@@ -19,7 +19,7 @@ def load_config():
 
     if os.path.exists(config_path):
         config.read(config_path, encoding="utf-8")
-        print(f"已加载配置文件: {config_path}")
+        print("已加载配置文件")
         return {
             "account": config["Account"]["email"],
             "password": config["Account"]["password"],
@@ -445,7 +445,7 @@ if __name__ == "__main__":
         # 添加等待用户输入后再退出
         input("\n按回车键退出...")
     except FileNotFoundError as e:
-        print(f"���误: {e}")
+        print(f"错误: {e}")
         print("请确保 config.ini 文件存在并包含正确的配置信息")
         input("\n按回车键退出...")
     except Exception as e:
