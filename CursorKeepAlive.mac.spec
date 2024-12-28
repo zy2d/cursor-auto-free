@@ -5,7 +5,6 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('config.ini', '.'),
         ('turnstilePatch', 'turnstilePatch'),
         ('cursor_auth_manager.py', '.'),
     ],

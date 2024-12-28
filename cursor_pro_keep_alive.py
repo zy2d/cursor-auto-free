@@ -1,6 +1,7 @@
 import os
-os.environ['PYTHONVERBOSE'] = '0'
-os.environ['PYINSTALLER_VERBOSE'] = '0'
+
+os.environ["PYTHONVERBOSE"] = "0"
+os.environ["PYINSTALLER_VERBOSE"] = "0"
 
 from DrissionPage import ChromiumOptions, Chromium
 from DrissionPage.common import Keys
@@ -16,11 +17,11 @@ import logging
 # 在文件开头设置日志
 logging.basicConfig(
     level=logging.WARNING,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('cursor_keep_alive.log', encoding='utf-8')
-    ]
+        logging.FileHandler("cursor_keep_alive.log", encoding="utf-8"),
+    ],
 )
 
 
@@ -28,19 +29,20 @@ def load_config():
     """加载配置文件"""
     config = ConfigParser()
 
-    # 修改获取配置文件路径的方式
-    if getattr(sys, 'frozen', False):
-        # 如果是打包后的执行文件
-        root_dir = sys._MEIPASS
+    # 获取程序运行的实际目录
+    if getattr(sys, "frozen", False):
+        # 打包后的情况：使用可执行文件所在目录
+        root_dir = os.path.dirname(sys.executable)
     else:
-        # 如果是直接运行 Python 脚本
+        # 开发环境：使用当前工作目录
         root_dir = os.getcwd()
-        
+
     config_path = os.path.join(root_dir, "config.ini")
 
     if os.path.exists(config_path):
         config.read(config_path, encoding="utf-8")
         print(f"已加载配置文件: {config_path}")
+        print(config["Account"]["email"])
         return {
             "account": config["Account"]["email"],
             "password": config["Account"]["password"],
@@ -401,18 +403,20 @@ def get_browser_options():
         co.add_extension(extension_path)
     except FileNotFoundError as e:
         print(f"警告: {e}")
-        
+
     co.headless()
-    co.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.92 Safari/537.36")
+    co.set_user_agent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.92 Safari/537.36"
+    )
     co.set_pref("credentials_enable_service", False)
     co.set_argument("--hide-crash-restore-bubble")
     co.auto_port()
-    
+
     # Mac 系统特殊处理
-    if sys.platform == 'darwin':
-        co.set_argument('--no-sandbox')
-        co.set_argument('--disable-gpu')
-    
+    if sys.platform == "darwin":
+        co.set_argument("--no-sandbox")
+        co.set_argument("--disable-gpu")
+
     return co
 
 
@@ -420,13 +424,14 @@ def cleanup_temp_files():
     """清理临时文件和缓存"""
     try:
         temp_dirs = [
-            os.path.join(os.getcwd(), '__pycache__'),
-            os.path.join(os.getcwd(), 'build'),
+            os.path.join(os.getcwd(), "__pycache__"),
+            os.path.join(os.getcwd(), "build"),
         ]
-        
+
         for dir_path in temp_dirs:
             if os.path.exists(dir_path):
                 import shutil
+
                 shutil.rmtree(dir_path)
     except Exception as e:
         logging.warning(f"清理临时文件失败: {str(e)}")
@@ -485,6 +490,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"程序执行出错: {str(e)}")
         import traceback
+
         print(traceback.format_exc())
     finally:
         # 确保浏览器实例被正确关闭
