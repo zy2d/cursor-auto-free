@@ -1,6 +1,23 @@
-.idea
-__pycache__
+# PyInstaller
+build/
+dist/
+*.spec
+!CursorKeepAlive.mac.spec
+!CursorKeepAlive.win.spec
 
-build
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 
-venv
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Mac
+.DS_Store
+
+venv/
