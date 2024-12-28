@@ -1,3 +1,7 @@
+import os
+os.environ['PYTHONVERBOSE'] = '0'
+os.environ['PYINSTALLER_VERBOSE'] = '0'
+
 from DrissionPage import ChromiumOptions, Chromium
 from DrissionPage.common import Keys
 import re
@@ -7,19 +11,36 @@ from cursor_auth_manager import CursorAuthManager
 from configparser import ConfigParser
 import os
 import sys
+import logging
+
+# 在文件开头设置日志
+logging.basicConfig(
+    level=logging.WARNING,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('cursor_keep_alive.log', encoding='utf-8')
+    ]
+)
 
 
 def load_config():
     """加载配置文件"""
     config = ConfigParser()
 
-    # 获取程序运行的根目录
-    root_dir = os.getcwd()
+    # 修改获取配置文件路径的方式
+    if getattr(sys, 'frozen', False):
+        # 如果是打包后的执行文件
+        root_dir = sys._MEIPASS
+    else:
+        # 如果是直接运行 Python 脚本
+        root_dir = os.getcwd()
+        
     config_path = os.path.join(root_dir, "config.ini")
 
     if os.path.exists(config_path):
         config.read(config_path, encoding="utf-8")
-        print("已加载配置文件")
+        print(f"已加载配置文件: {config_path}")
         return {
             "account": config["Account"]["email"],
             "password": config["Account"]["password"],
@@ -27,9 +48,7 @@ def load_config():
             "last_name": config["Account"]["last_name"],
         }
 
-    raise FileNotFoundError(
-        f"配置文件不存在: {config_path}\n请确保配置文件在程序运行目录下"
-    )
+    raise FileNotFoundError(f"配置文件不存在: {config_path}")
 
 
 def get_veri_code(tab):
@@ -375,7 +394,46 @@ def get_extension_path():
     return extension_path
 
 
+def get_browser_options():
+    co = ChromiumOptions()
+    try:
+        extension_path = get_extension_path()
+        co.add_extension(extension_path)
+    except FileNotFoundError as e:
+        print(f"警告: {e}")
+        
+    co.headless()
+    co.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.92 Safari/537.36")
+    co.set_pref("credentials_enable_service", False)
+    co.set_argument("--hide-crash-restore-bubble")
+    co.auto_port()
+    
+    # Mac 系统特殊处理
+    if sys.platform == 'darwin':
+        co.set_argument('--no-sandbox')
+        co.set_argument('--disable-gpu')
+    
+    return co
+
+
+def cleanup_temp_files():
+    """清理临时文件和缓存"""
+    try:
+        temp_dirs = [
+            os.path.join(os.getcwd(), '__pycache__'),
+            os.path.join(os.getcwd(), 'build'),
+        ]
+        
+        for dir_path in temp_dirs:
+            if os.path.exists(dir_path):
+                import shutil
+                shutil.rmtree(dir_path)
+    except Exception as e:
+        logging.warning(f"清理临时文件失败: {str(e)}")
+
+
 if __name__ == "__main__":
+    browser = None
     try:
         # 加载配置
         config = load_config()
@@ -395,24 +453,7 @@ if __name__ == "__main__":
         auto_update_cursor_auth = True
 
         # 浏览器配置
-        co = ChromiumOptions()
-        try:
-            extension_path = get_extension_path()
-            co.add_extension(extension_path)
-        except FileNotFoundError as e:
-            print(f"警告: {e}")
-            print("将尝试继续执行...")
-
-        co.headless()  # 无头模式
-        co.set_user_agent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.92 Safari/537.36"
-        )
-        co.set_pref("credentials_enable_service", False)
-        co.set_argument("--hide-crash-restore-bubble")
-        co.auto_port()
-        # co.set_argument('--no-sandbox')        # 无沙盒模式     用于linux
-        # co.set_argument('--headless=new')      #无界面系统启动参数   用于linux
-        # co.set_proxy('127.0.0.1:10809')        #设置代理
+        co = get_browser_options()
 
         browser = Chromium(co)
         tab = browser.latest_tab
@@ -440,14 +481,16 @@ if __name__ == "__main__":
             print("账户删除失败")
 
         print("脚本执行完毕")
-        browser.quit()
 
-        # 添加等待用户输入后再退出
-        input("\n按回车键退出...")
-    except FileNotFoundError as e:
-        print(f"错误: {e}")
-        print("请确保 config.ini 文件存在并包含正确的配置信息")
-        input("\n按回车键退出...")
     except Exception as e:
-        print(f"加载配置时出错: {e}")
+        print(f"程序执行出错: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+    finally:
+        # 确保浏览器实例被正确关闭
+        if browser:
+            try:
+                browser.quit()
+            except:
+                pass
         input("\n按回车键退出...")

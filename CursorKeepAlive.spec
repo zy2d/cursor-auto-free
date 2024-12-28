@@ -18,6 +18,11 @@ a = Analysis(
     excludes=[],
     noarchive=False,
 )
+
+import os
+if not os.path.exists('config.ini'):
+    raise FileNotFoundError('config.ini 文件不存在！请确保它在正确的位置。')
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -26,7 +31,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='cursorPro',
+    name='CursorPro',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -39,4 +44,18 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=None
+)
+
+app = BUNDLE(
+    exe,
+    name='CursorPro.app',
+    icon=None,
+    bundle_identifier='com.yourcompany.cursorpro',
+    info_plist={
+        'CFBundleShortVersionString': '1.0.0',
+        'CFBundleVersion': '1.0.0',
+        'NSHighResolutionCapable': True,
+        'LSBackgroundOnly': False,
+    },
 )
