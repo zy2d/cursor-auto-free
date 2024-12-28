@@ -1,0 +1,90 @@
+[2024/12/26 周四 13:11:03.37] 寮�濮嬫墽琛岃剼鏈?
+[2024/12/26 周四 13:17:58.13] 寮�濮嬫墽琛岃剼鏈?
+开始执行删除和注册流程
+***请确认已经用https://tempmail.plus/zh邮箱成功申请过cursor账号！***
+
+开始删除账户...
+输入账号
+点击Continue
+准备处理验证
+验证框加载完成
+验证按钮已点击，等待验证完成...
+输入密码
+点击Sign in
+准备处理验证
+验证框加载完成
+验证按钮已点击，等待验证完成...
+准备处理验证
+无需验证
+进入设置页面
+点击Adavance
+点击Delete Account
+输入delete
+点击Delete
+账户删除成功
+
+开始注册新账户...
+已打开注册页面
+输入邮箱
+点击注册按钮
+准备处理验证
+验证框加载完成
+验证按钮已点击，等待验证完成...
+输入密码
+点击Continue按钮
+准备处理验证
+验证框加载完成
+验证按钮已点击，等待验证完成...
+打开邮箱页面
+最新的邮件： Cursor <no-reply@cursor.sh>
+07:19
+Verify your email address
+验证码： 227917
+删除邮件
+获取验证码成功： 227917
+准备处理验证
+验证框加载完成
+验证按钮已点击，等待验证完成...
+进入设置页面
+注册完成
+Cursor 账号： apxeme@mailto.plus
+       密码： ccz14321@
+CursorSessionToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhdXRoMHx1c2VyXzAxSkcwUEZXQUNHSEQ5SDVNU1RWWlFHUDZOIiwidGltZSI6IjE3MzUxOTA0MDEiLCJyYW5kb21uZXNzIjoiYTM4NDBhYzEtZGYwNi00NDhkIiwiZXhwIjo0MzI3MTkwNDAxLCJpc3MiOiJodHRwczovL2F1dGhlbnRpY2F0aW9uLmN1cnNvci5zaCIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgb2ZmbGluZV9hY2Nlc3MiLCJhdWQiOiJodHRwczovL2N1cnNvci5jb20ifQ.YYQ_C4BjbkHlShTFElkOvXFDqA8kYA-aWMqHKLa5RsU
+账户注册成功
+成功更新 cachedEmail
+成功更新 accessToken
+成功更新 refreshToken
+脚本执行完毕
+[2024/12/26 周四 13:20:14.57] 鑴氭湰鎵ц瀹屾垚 
+Traceback (most recent call last):
+  File "cursor_pro_keep_alive.py", line 370, in <module>
+    if delete_account(browser, tab):
+       ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "cursor_pro_keep_alive.py", line 146, in delete_account
+    if tab.ele("Account Settings"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "DrissionPage\_pages\mix_tab.py", line 109, in ele
+  File "DrissionPage\_pages\chromium_base.py", line 424, in ele
+  File "DrissionPage\_base\base.py", line 356, in _ele
+  File "DrissionPage\_pages\mix_tab.py", line 192, in _find_elements
+  File "DrissionPage\_pages\chromium_base.py", line 492, in _find_elements
+  File "DrissionPage\_base\driver.py", line 176, in run
+  File "DrissionPage\_base\driver.py", line 84, in _send
+  File "queue.py", line 213, in get
+  File "threading.py", line 363, in wait
+KeyboardInterrupt
+[PYI-35588:ERROR] Failed to execute script 'cursor_pro_keep_alive' due to unhandled exception!
+开始执行删除和注册流程
+***请确认已经用https://tempmail.plus/zh邮箱成功申请过cursor账号！***
+
+开始删除账户...
+输入账号
+点击Continue
+准备处理验证
+验证框加载完成
+验证按钮已点击，等待验证完成...
+输入密码
+点击Sign in
+准备处理验证
+验证框加载完成
+验证按钮已点击，等待验证完成...
