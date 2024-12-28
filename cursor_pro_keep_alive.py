@@ -13,6 +13,8 @@ from configparser import ConfigParser
 import os
 import sys
 import logging
+from browser_utils import BrowserManager
+from get_veri_code import EmailVerificationHandler
 
 # 在文件开头设置日志
 logging.basicConfig(
@@ -51,57 +53,6 @@ def load_config():
         }
 
     raise FileNotFoundError(f"配置文件不存在: {config_path}")
-
-
-def get_veri_code(tab):
-    """获取验证码"""
-    username = account.split("@")[0]
-    try:
-        while True:
-            if tab.ele("@id=pre_button"):
-                tab.actions.click("@id=pre_button").type(Keys.CTRL_A).key_down(
-                    Keys.BACKSPACE
-                ).key_up(Keys.BACKSPACE).input(username).key_down(Keys.ENTER).key_up(
-                    Keys.ENTER
-                )
-                break
-            time.sleep(1)
-
-        while True:
-            new_mail = tab.ele("@class=mail")
-            if new_mail:
-                if new_mail.text:
-                    print("最新的邮件：", new_mail.text)
-                    tab.actions.click("@class=mail")
-                    break
-                else:
-                    print(new_mail)
-                    break
-            time.sleep(1)
-
-        if tab.ele("@class=overflow-auto mb-20"):
-            email_content = tab.ele("@class=overflow-auto mb-20").text
-            verification_code = re.search(
-                r"verification code is (\d{6})", email_content
-            )
-            if verification_code:
-                code = verification_code.group(1)
-                print("验证码：", code)
-            else:
-                print("未找到验证码")
-
-        if tab.ele("@id=delete_mail"):
-            tab.actions.click("@id=delete_mail")
-            time.sleep(1)
-
-        if tab.ele("@id=confirm_mail"):
-            tab.actions.click("@id=confirm_mail")
-            print("删除邮件")
-        tab.close()
-    except Exception as e:
-        print(e)
-
-    return code
 
 
 def handle_turnstile(tab):
@@ -193,14 +144,10 @@ def delete_account(browser, tab):
             if tab.ele("Account Settings"):
                 break
             if tab.ele("@data-index=0"):
-                tab_mail = browser.new_tab(mail_url)
-                browser.activate_tab(tab_mail)
-                print("打开邮箱页面")
-                code = get_veri_code(tab_mail)
+                code = email_handler.get_verification_code(account)
 
                 if code:
                     print("获取验证码成功：", code)
-                    browser.activate_tab(tab)
                 else:
                     print("获取验证码失败，程序退出")
                     return False
@@ -266,10 +213,14 @@ def get_cursor_session_token(tab):
     """获取cursor session token"""
     cookies = tab.cookies()
     cursor_session_token = None
+    time.sleep(3)
+    print(cookies)
     for cookie in cookies:
         if cookie["name"] == "WorkosCursorSessionToken":
             cursor_session_token = cookie["value"].split("%3A%3A")[1]
             break
+    if not cursor_session_token:
+        print("未能获取到CursorSessionToken")
     return cursor_session_token
 
 
@@ -333,14 +284,10 @@ def sign_up_account(browser, tab):
             if tab.ele("Account Settings"):
                 break
             if tab.ele("@data-index=0"):
-                tab_mail = browser.new_tab(mail_url)
-                browser.activate_tab(tab_mail)
-                print("打开邮箱页面")
-                code = get_veri_code(tab_mail)
+                code = email_handler.get_verification_code(account)
 
                 if code:
                     print("获取验证码成功：", code)
-                    browser.activate_tab(tab)
                 else:
                     print("获取验证码失败，程序退出")
                     return False
@@ -377,49 +324,6 @@ def sign_up_account(browser, tab):
     return True
 
 
-def get_extension_path():
-    """获取插件路径"""
-    root_dir = os.getcwd()
-    extension_path = os.path.join(root_dir, "turnstilePatch")
-
-    if hasattr(sys, "_MEIPASS"):
-        print("运行在打包环境中")
-        extension_path = os.path.join(sys._MEIPASS, "turnstilePatch")
-
-    print(f"尝试加载插件路径: {extension_path}")
-
-    if not os.path.exists(extension_path):
-        raise FileNotFoundError(
-            f"插件不存在: {extension_path}\n请确保 turnstilePatch 文件夹在正确位置"
-        )
-
-    return extension_path
-
-
-def get_browser_options():
-    co = ChromiumOptions()
-    try:
-        extension_path = get_extension_path()
-        co.add_extension(extension_path)
-    except FileNotFoundError as e:
-        print(f"警告: {e}")
-
-    co.headless()
-    co.set_user_agent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.92 Safari/537.36"
-    )
-    co.set_pref("credentials_enable_service", False)
-    co.set_argument("--hide-crash-restore-bubble")
-    co.auto_port()
-
-    # Mac 系统特殊处理
-    if sys.platform == "darwin":
-        co.set_argument("--no-sandbox")
-        co.set_argument("--disable-gpu")
-
-    return co
-
-
 def cleanup_temp_files():
     """清理临时文件和缓存"""
     try:
@@ -438,10 +342,17 @@ def cleanup_temp_files():
 
 
 if __name__ == "__main__":
-    browser = None
+    browser_manager = None
     try:
         # 加载配置
         config = load_config()
+
+        # 初始化浏览器
+        browser_manager = BrowserManager()
+        browser = browser_manager.init_browser()
+
+        # 初始化��箱验证处理器
+        email_handler = EmailVerificationHandler(browser)
 
         # 固定的 URL 配置
         login_url = "https://authenticator.cursor.sh"
@@ -457,10 +368,6 @@ if __name__ == "__main__":
 
         auto_update_cursor_auth = True
 
-        # 浏览器配置
-        co = get_browser_options()
-
-        browser = Chromium(co)
         tab = browser.latest_tab
         tab.run_js("try { turnstile.reset() } catch(e) { }")
 
@@ -474,29 +381,38 @@ if __name__ == "__main__":
             time.sleep(3)
             if sign_up_account(browser, tab):
                 token = get_cursor_session_token(tab)
-                print(f"CursorSessionToken: {token}")
-                print("账户注册成功")
-                if auto_update_cursor_auth:
-                    update_cursor_auth(
-                        email=account, access_token=token, refresh_token=token
-                    )
+                if token:
+                    print(f"CursorSessionToken: {token}")
+                    print("账户注册成功")
+                    if auto_update_cursor_auth:
+                        update_cursor_auth(
+                            email=account, access_token=token, refresh_token=token
+                        )
+                else:
+                    print("未能获取到CursorSessionToken")
             else:
                 print("账户注册失败")
         else:
             print("账户删除失败")
+        # if sign_up_account(browser, tab):
+        #     token = get_cursor_session_token(tab)
+        #     print(f"CursorSessionToken: {token}")
+        #     print("账户注册成功")
+        #     if auto_update_cursor_auth:
+        #         update_cursor_auth(
+        #             email=account, access_token=token, refresh_token=token
+        #         )
+        #     else:
+        #         print("账户注册失败")
 
         print("脚本执行完毕")
 
     except Exception as e:
-        print(f"程序执行出错: {str(e)}")
+        logging.error(f"程序执行出错: {str(e)}")
         import traceback
 
-        print(traceback.format_exc())
+        logging.error(traceback.format_exc())
     finally:
-        # 确保浏览器实例被正确关闭
-        if browser:
-            try:
-                browser.quit()
-            except:
-                pass
+        if browser_manager:
+            browser_manager.quit()
         input("\n按回车键退出...")
