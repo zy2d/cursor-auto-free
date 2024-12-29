@@ -1,0 +1,60 @@
+name: Build Executables
+
+on:
+  push:
+    branches: [ "main", "master" ]  # 只在主分支推送时触发
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+        
+    - name: Build EXE
+      run: |
+        pyinstaller CursorKeepAlive.spec
+        
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: CursorPro-Windows
+        path: dist/CursorPro.exe
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+        
+    - name: Build MacOS executable
+      run: |
+        pyinstaller CursorKeepAlive.spec
+        
+    - name: Upload MacOS artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: CursorPro-MacOS
+        path: dist/CursorPro
