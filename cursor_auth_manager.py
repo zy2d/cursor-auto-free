@@ -47,7 +47,6 @@ class CursorAuthManager:
 
                 if cursor.rowcount > 0:
                     print(f"成功更新 {key.split('/')[-1]}")
-                    print("更新成功")
                 else:
                     print(f"未找到 {key.split('/')[-1]} 或值未变化")
 

@@ -214,7 +214,6 @@ def get_cursor_session_token(tab):
     cookies = tab.cookies()
     cursor_session_token = None
     time.sleep(3)
-    print(cookies)
     for cookie in cookies:
         if cookie["name"] == "WorkosCursorSessionToken":
             cursor_session_token = cookie["value"].split("%3A%3A")[1]
