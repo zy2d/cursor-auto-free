@@ -382,7 +382,7 @@ if __name__ == "__main__":
             if sign_up_account(browser, tab):
                 token = get_cursor_session_token(tab)
                 if token:
-                    print(f"CursorSessionToken: {token}")
+                    # print(f"CursorSessionToken: {token}")
                     print("账户注册成功")
                     if auto_update_cursor_auth:
                         update_cursor_auth(

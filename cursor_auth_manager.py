@@ -1,16 +1,20 @@
 import sqlite3
 import os
 
+
 class CursorAuthManager:
     """Cursor认证信息管理器"""
 
     def __init__(self):
         # 判断操作系统
-        if os.name == 'nt':  # Windows
-            self.db_path = os.path.join(os.getenv('APPDATA'), 'Cursor', 'User', 'globalStorage', 'state.vscdb')
+        if os.name == "nt":  # Windows
+            self.db_path = os.path.join(
+                os.getenv("APPDATA"), "Cursor", "User", "globalStorage", "state.vscdb"
+            )
         else:  # macOS
-            self.db_path = os.path.expanduser('~/Library/Application Support/Cursor/User/globalStorage/state.vscdb')
-
+            self.db_path = os.path.expanduser(
+                "~/Library/Application Support/Cursor/User/globalStorage/state.vscdb"
+            )
 
     def update_auth(self, email=None, access_token=None, refresh_token=None):
         """
@@ -22,11 +26,11 @@ class CursorAuthManager:
         """
         updates = []
         if email is not None:
-            updates.append(('cursorAuth/cachedEmail', email))
+            updates.append(("cursorAuth/cachedEmail", email))
         if access_token is not None:
-            updates.append(('cursorAuth/accessToken', access_token))
+            updates.append(("cursorAuth/accessToken", access_token))
         if refresh_token is not None:
-            updates.append(('cursorAuth/refreshToken', refresh_token))
+            updates.append(("cursorAuth/refreshToken", refresh_token))
 
         if not updates:
             print("没有提供任何要更新的值")
@@ -43,6 +47,7 @@ class CursorAuthManager:
 
                 if cursor.rowcount > 0:
                     print(f"成功更新 {key.split('/')[-1]}")
+                    print("更新成功")
                 else:
                     print(f"未找到 {key.split('/')[-1]} 或值未变化")
 
