@@ -29,12 +29,7 @@ class BrowserManager:
         co.set_pref("credentials_enable_service", False)
         co.set_argument("--hide-crash-restore-bubble")
         co.auto_port()
-
-        # 只在开发环境启用无头模式
-        if os.environ.get("ENV") == "development":
-            co.headless(True)
-        else:
-            co.headless(False)
+        co.headless(True)  # 生产环境使用无头模式
 
         # Mac 系统特殊处理
         if sys.platform == "darwin":
