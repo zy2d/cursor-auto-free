@@ -123,6 +123,7 @@ def delete_account(browser, tab):
             tab.ele("@name=password").input(password)
             print("输入密码")
             time.sleep(random.uniform(1, 3))
+
     except Exception as e:
         print("输入密码失败")
 
@@ -141,6 +142,9 @@ def delete_account(browser, tab):
     # 处理验证码
     while True:
         try:
+            if tab.ele("Invalid email or password"):
+                print("Invalid email or password")
+                return False
             if tab.ele("Account Settings"):
                 break
             if tab.ele("@data-index=0"):
