@@ -12,10 +12,49 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Encryption functions
+function encryptLicenseKey(text) {
+    const cipher = crypto.createCipher('aes-256-cbc', process.env.ENCRYPTION_KEY);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
+}
+
+function decryptLicenseKey(encrypted) {
+    const decipher = crypto.createDecipher('aes-256-cbc', process.env.ENCRYPTION_KEY);
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+}
+
+function generateLicenseKey() {
+    const randomBytes = crypto.randomBytes(16);
+    const timestamp = Date.now().toString();
+    const combined = randomBytes.toString('hex') + timestamp;
+    return encryptLicenseKey(combined).substring(0, 32); // 生成32位的许可证密钥
+}
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
+
+// Generate license key endpoint
+app.post('/generate', async (req, res) => {
+    try {
+        const licenseKey = generateLicenseKey();
+        return res.json({
+            success: true,
+            license_key: licenseKey
+        });
+    } catch (error) {
+        console.error('生成许可证错误:', error);
+        return res.status(500).json({
+            success: false,
+            message: '服务器错误'
+        });
+    }
+});
 
 // Activation endpoint
 app.post('/activate', async (req, res) => {
@@ -27,6 +66,16 @@ app.post('/activate', async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: '许可证密钥和机器码是必需的'
+            });
+        }
+
+        // Validate license key format
+        try {
+            decryptLicenseKey(license_key);
+        } catch (error) {
+            return res.status(400).json({
+                success: false,
+                message: '无效的许可证密钥'
             });
         }
 
@@ -87,6 +136,16 @@ app.post('/verify', async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: '许可证密钥和机器码是必需的'
+            });
+        }
+
+        // Validate license key format
+        try {
+            decryptLicenseKey(license_key);
+        } catch (error) {
+            return res.status(400).json({
+                success: false,
+                message: '无效的许可证密钥'
             });
         }
 

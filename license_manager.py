@@ -5,7 +5,8 @@ import platform
 import uuid
 import hashlib
 from datetime import datetime
-from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
 import base64
 
 
@@ -21,7 +22,38 @@ class LicenseManager:
             "https://your-activation-server.com/verify"  # 替换为您的验证服务器地址
         )
         self.key = b"Kj8nP9x2Qs5mY7vR4wL1hC3fA6tD0iB8"
-        self.fernet = Fernet(base64.b64encode(self.key))
+
+    def encrypt(self, text):
+        """使用AES-256-CBC加密"""
+        cipher = Cipher(
+            algorithms.AES(self.key),
+            modes.CBC(self.key[:16]),
+            backend=default_backend(),
+        )
+        encryptor = cipher.encryptor()
+
+        # 添加PKCS7填充
+        length = 16 - (len(text) % 16)
+        text += bytes([length]) * length
+
+        encrypted = encryptor.update(text) + encryptor.finalize()
+        return base64.b64encode(encrypted).decode("utf-8")
+
+    def decrypt(self, encrypted_text):
+        """使用AES-256-CBC解密"""
+        encrypted = base64.b64decode(encrypted_text)
+        cipher = Cipher(
+            algorithms.AES(self.key),
+            modes.CBC(self.key[:16]),
+            backend=default_backend(),
+        )
+        decryptor = cipher.decryptor()
+
+        decrypted = decryptor.update(encrypted) + decryptor.finalize()
+
+        # 移除PKCS7填充
+        padding_length = decrypted[-1]
+        return decrypted[:-padding_length]
 
     def get_hardware_info(self):
         """获取硬件信息作为机器码"""
@@ -127,8 +159,8 @@ class LicenseManager:
         """加密保存许可证数据"""
         try:
             os.makedirs(os.path.dirname(self.license_file), exist_ok=True)
-            encrypted_data = self.fernet.encrypt(json.dumps(license_data).encode())
-            with open(self.license_file, "wb") as f:
+            encrypted_data = self.encrypt(json.dumps(license_data).encode())
+            with open(self.license_file, "w") as f:
                 f.write(encrypted_data)
         except Exception as e:
             print(f"保存许可证出错: {e}")
@@ -136,9 +168,9 @@ class LicenseManager:
     def _load_license(self):
         """加密读取许可证数据"""
         try:
-            with open(self.license_file, "rb") as f:
+            with open(self.license_file, "r") as f:
                 encrypted_data = f.read()
-            decrypted_data = self.fernet.decrypt(encrypted_data)
+            decrypted_data = self.decrypt(encrypted_data)
             return json.loads(decrypted_data)
         except Exception as e:
             print(f"读取许可证出错: {e}")
