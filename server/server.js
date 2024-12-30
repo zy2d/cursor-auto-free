@@ -76,7 +76,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 // 定义一个复杂的路径，可以放在环境变量中
-const GENERATE_PATH = process.env.GENERATE_PATH || crypto.randomBytes(16).toString('hex');
+const GENERATE_PATH = process.env.GENERATE_PATH || 'xx-zz-yy-dd';
 
 // 在应用启动时输出生成路径（仅在控制台显示一次）
 console.log('License generation path:', GENERATE_PATH);
@@ -156,6 +156,16 @@ app.post('/activate', async (req, res) => {
 
         // 创建新的许可证并标记许可证密钥为已使用
         const expiryDate = moment().add(1, 'month').toDate();
+
+        await License.create([{
+            licenseKey: license_key,
+            machineCode: machine_code,
+            activationDate: activation_date || new Date(),
+            expiryDate: expiryDate,
+            isActive: true,
+            maxUsageCount: process.env.MAX_USAGE_COUNT || 10, // 如果未指定，默认为100次
+            currentUsageCount: 0
+        }]);
        
 
         // 更新许可证密钥状态为已使用
@@ -233,10 +243,26 @@ app.post('/verify', async (req, res) => {
             });
         }
 
+        // 检查使用次数
+        if (license.currentUsageCount >= license.maxUsageCount) {
+            return res.status(400).json({
+                success: false,
+                message: '许可证使用次数已达到上限'
+            });
+        }
+
+        // 更新使用次数
+        license.currentUsageCount += 1;
+        await license.save();
+
         return res.json({
             success: true,
             message: '许可证有效',
-            expiry_date: license.expiryDate.toISOString().split('T')[0]
+            expiry_date: license.expiryDate.toISOString().split('T')[0],
+            usage_count: {
+                current: license.currentUsageCount,
+                max: license.maxUsageCount
+            }
         });
     } catch (error) {
         console.error('验证错误:', error);

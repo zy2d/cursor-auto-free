@@ -22,6 +22,15 @@ const licenseSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    maxUsageCount: {
+        type: Number,
+        required: true,
+        default: process.env.MAX_USAGE_COUNT || 10  // 默认允许使用100次
+    },
+    currentUsageCount: {
+        type: Number,
+        default: 0
     }
 });
 
