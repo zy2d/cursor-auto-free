@@ -29,34 +29,6 @@ logging.basicConfig(
 )
 
 
-def load_config():
-    """加载配置文件"""
-    config = ConfigParser()
-
-    # 获取程序运行的实际目录
-    if getattr(sys, "frozen", False):
-        # 打包后的情况：使用可执行文件所在目录
-        root_dir = os.path.dirname(sys.executable)
-    else:
-        # 开发环境：使用当前工作目录
-        root_dir = os.getcwd()
-
-    config_path = os.path.join(root_dir, "config.ini")
-
-    if os.path.exists(config_path):
-        config.read(config_path, encoding="utf-8")
-        print(f"已加载配置文件: {config_path}")
-        print(config["Account"]["email"])
-        return {
-            "account": config["Account"]["email"],
-            "password": config["Account"]["password"],
-            "first_name": config["Account"]["first_name"],
-            "last_name": config["Account"]["last_name"],
-        }
-
-    raise FileNotFoundError(f"配置文件不存在: {config_path}")
-
-
 def handle_turnstile(tab):
     """处理 Turnstile 验证"""
     print("准备处理验证")
@@ -168,7 +140,7 @@ def delete_account(browser, tab):
             print(e)
 
     handle_turnstile(tab)
-    time.sleep(random.uniform(1, 3))
+    time.sleep(5)
     # tab.get_screenshot('sign-in_success.png')
     # print("登录账户截图")
 
@@ -219,7 +191,6 @@ def get_cursor_session_token(tab):
     """获取cursor session token"""
     cookies = tab.cookies()
     cursor_session_token = None
-    time.sleep(3)
     for cookie in cookies:
         if cookie["name"] == "WorkosCursorSessionToken":
             cursor_session_token = cookie["value"].split("%3A%3A")[1]
@@ -307,14 +278,16 @@ def sign_up_account(browser, tab):
             print(e)
 
     handle_turnstile(tab)
-
     time.sleep(random.uniform(1, 3))
     print("进入设置页面")
     tab.get(settings_url)
     try:
-        usage_ele = tab.ele(
-            "xpath:/html/body/main/div/div/div/div/div/div[2]/div/div/div/div[1]/div[1]/span[2]"
+        usage_selector = (
+            "css:div.col-span-2 > div > div > div > div > "
+            "div:nth-child(1) > div.flex.items-center.justify-between.gap-2 > "
+            "span.font-mono.text-sm\\/\\[0\\.875rem\\]"
         )
+        usage_ele = tab.ele(usage_selector)
         if usage_ele:
             usage_info = usage_ele.text
             total_usage = usage_info.split("/")[-1].strip()
@@ -326,6 +299,7 @@ def sign_up_account(browser, tab):
     print("注册完成")
     print("Cursor 账号： " + account)
     print("       密码： " + password)
+    time.sleep(5)
     return True
 
 
@@ -346,6 +320,40 @@ def cleanup_temp_files():
         logging.warning(f"清理临时文件失败: {str(e)}")
 
 
+class EmailGenerator:
+    def __init__(
+        self,
+        domain="mailto.plus",
+        password="".join(
+            random.choices(
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*",
+                k=12,
+            )
+        ),
+        first_name="yuyan",
+        last_name="peng",
+    ):
+        self.domain = domain
+        self.default_password = password
+        self.default_first_name = first_name
+        self.default_last_name = last_name
+
+    def generate_email(self, length=8):
+        """生成随机邮箱地址"""
+        random_str = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=length))
+        timestamp = str(int(time.time()))[-6:]  # 使用时间戳后6位
+        return f"{random_str}{timestamp}@{self.domain}"
+
+    def get_account_info(self):
+        """获取完整的账号信息"""
+        return {
+            "email": self.generate_email(),
+            "password": self.default_password,
+            "first_name": self.default_first_name,
+            "last_name": self.default_last_name,
+        }
+
+
 if __name__ == "__main__":
     browser_manager = None
     try:
@@ -363,14 +371,11 @@ if __name__ == "__main__":
                 sys.exit(1)
             print("激活成功！")
 
-        # 加载配置
-        config = load_config()
-
         # 初始化浏览器
         browser_manager = BrowserManager()
         browser = browser_manager.init_browser()
 
-        # 初始化��箱验证处理器
+        # 初始化邮箱验证处理器
         email_handler = EmailVerificationHandler(browser)
 
         # 固定的 URL 配置
@@ -379,50 +384,31 @@ if __name__ == "__main__":
         settings_url = "https://www.cursor.com/settings"
         mail_url = "https://tempmail.plus"
 
-        # 账号信息
-        account = config["account"]
-        password = config["password"]
-        first_name = config["first_name"]
-        last_name = config["last_name"]
+        # 生成随机邮箱
+        email_generator = EmailGenerator()
+        account = email_generator.generate_email()
+        password = email_generator.default_password
+        first_name = email_generator.default_first_name
+        last_name = email_generator.default_last_name
 
         auto_update_cursor_auth = True
 
         tab = browser.latest_tab
         tab.run_js("try { turnstile.reset() } catch(e) { }")
 
-        print("开始执行删除和注册流程")
-        print("***请确认已经用https://tempmail.plus/zh邮箱成功申请过cursor账号！***")
         tab.get(login_url)
 
-        # 执行删除和注册流程
-        if delete_account(browser, tab):
-            print("账户删除成功")
-            time.sleep(3)
-            if sign_up_account(browser, tab):
-                token = get_cursor_session_token(tab)
-                if token:
-                    # print(f"CursorSessionToken: {token}")
-                    print("账户注册成功")
-                    if auto_update_cursor_auth:
-                        update_cursor_auth(
-                            email=account, access_token=token, refresh_token=token
-                        )
-                else:
-                    print("未能获取到CursorSessionToken")
+        print("开始注册账户")
+        if sign_up_account(browser, tab):
+            token = get_cursor_session_token(tab)
+            # print(f"CursorSessionToken: {token}")
+            print("账户注册成功")
+            if auto_update_cursor_auth:
+                update_cursor_auth(
+                    email=account, access_token=token, refresh_token=token
+                )
             else:
                 print("账户注册失败")
-        else:
-            print("账户删除失败")
-        # if sign_up_account(browser, tab):
-        #     token = get_cursor_session_token(tab)
-        #     print(f"CursorSessionToken: {token}")
-        #     print("账户注册成功")
-        #     if auto_update_cursor_auth:
-        #         update_cursor_auth(
-        #             email=account, access_token=token, refresh_token=token
-        #         )
-        #     else:
-        #         print("账户注册失败")
 
         print("脚本执行完毕")
 
