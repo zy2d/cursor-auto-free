@@ -1,5 +1,7 @@
 import os
 
+from license_manager import LicenseManager
+
 os.environ["PYTHONVERBOSE"] = "0"
 os.environ["PYINSTALLER_VERBOSE"] = "0"
 
@@ -346,7 +348,14 @@ def cleanup_temp_files():
 
 if __name__ == "__main__":
     browser_manager = None
+    license_manager = None
     try:
+        # 检查许可证
+        license_manager = LicenseManager()
+        if not license_manager.check_license():
+            print("免费使用次数已用完")
+            sys.exit(1)
+
         # 加载配置
         config = load_config()
 
