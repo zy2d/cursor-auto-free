@@ -348,13 +348,20 @@ def cleanup_temp_files():
 
 if __name__ == "__main__":
     browser_manager = None
-    license_manager = None
     try:
-        # 检查许可证
         license_manager = LicenseManager()
-        if not license_manager.check_license():
-            print("免费使用次数已用完")
-            sys.exit(1)
+
+        # 验证许可证
+        is_valid, message = license_manager.verify_license()
+        if not is_valid:
+            print(f"许可证验证失败: {message}")
+            # 提示用户激活
+            license_key = input("请输入激活码: ")
+            success, activate_message = license_manager.activate_license(license_key)
+            if not success:
+                print(f"激活失败: {activate_message}")
+                sys.exit(1)
+            print("激活成功！")
 
         # 加载配置
         config = load_config()

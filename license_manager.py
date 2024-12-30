@@ -1,5 +1,12 @@
+import requests
 import json
 import os
+import platform
+import uuid
+import hashlib
+from datetime import datetime
+from cryptography.fernet import Fernet
+import base64
 
 
 class LicenseManager:
@@ -7,39 +14,132 @@ class LicenseManager:
         self.license_file = os.path.join(
             os.getenv("APPDATA"), "CursorPro", "license.json"
         )
-        self.max_uses = 10  # 最大使用次数
+        self.activation_url = (
+            "https://your-activation-server.com/activate"  # 替换为您的激活服务器地址
+        )
+        self.verify_url = (
+            "https://your-activation-server.com/verify"  # 替换为您的验证服务器地址
+        )
+        self.key = b"Kj8nP9x2Qs5mY7vR4wL1hC3fA6tD0iB8"
+        self.fernet = Fernet(base64.b64encode(self.key))
 
-    def check_license(self):
+    def get_hardware_info(self):
+        """获取硬件信息作为机器码"""
+        system_info = {
+            "platform": platform.platform(),
+            "machine": platform.machine(),
+            "processor": platform.processor(),
+            "hostname": platform.node(),
+        }
+
+        # 获取MAC地址
+        mac = ":".join(
+            [
+                "{:02x}".format((uuid.getnode() >> elements) & 0xFF)
+                for elements in range(0, 2 * 6, 2)
+            ][::-1]
+        )
+        system_info["mac"] = mac
+
+        # 生成机器码
+        machine_code = hashlib.md5(json.dumps(system_info).encode()).hexdigest()
+        return machine_code
+
+    def activate_license(self, license_key):
+        """在线激活许可证"""
         try:
-            # 确保目录存在
-            os.makedirs(os.path.dirname(self.license_file), exist_ok=True)
+            machine_code = self.get_hardware_info()
 
-            if not os.path.exists(self.license_file):
-                # 首次运行，创建许可文件
-                license_data = {"use_count": 0, "is_activated": False}
-                with open(self.license_file, "w") as f:
-                    json.dump(license_data, f)
-                return True
+            # 准备激活数据
+            activation_data = {
+                "license_key": license_key,
+                "machine_code": machine_code,
+                "activation_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
 
-            # 读取许可信息
-            with open(self.license_file, "r") as f:
-                license_data = json.load(f)
+            # 发送激活请求
+            response = requests.post(
+                self.activation_url, json=activation_data, timeout=10
+            )
 
-            if license_data.get("is_activated"):
-                return True
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("success"):
+                    # 保存许可证信息
+                    license_data = {
+                        "license_key": license_key,
+                        "machine_code": machine_code,
+                        "activation_date": activation_data["activation_date"],
+                        "expiry_date": result.get("expiry_date"),
+                        "is_activated": True,
+                    }
 
-            # 检查使用次数
-            use_count = license_data.get("use_count", 0)
-            if use_count >= self.max_uses:
-                return False
-
-            # 增加使用次数并保存
-            license_data["use_count"] = use_count + 1
-            with open(self.license_file, "w") as f:
-                json.dump(license_data, f)
-
-            return True
+                    self._save_license(license_data)
+                    return True, "激活成功！"
+                else:
+                    return False, result.get("message", "激活失败")
+            else:
+                return False, "服务器连接失败"
 
         except Exception as e:
-            print(f"License check error: {e}")
-            return False
+            return False, f"激活过程出错: {str(e)}"
+
+    def verify_license(self):
+        """验证许可证"""
+        try:
+            if not os.path.exists(self.license_file):
+                return False, "未找到许可证文件"
+
+            license_data = self._load_license()
+            if not license_data:
+                return False, "许可证文件无效"
+
+            # 验证机器码
+            current_machine = self.get_hardware_info()
+            if current_machine != license_data.get("machine_code"):
+                return False, "硬件信息不匹配"
+
+            # 在线验证
+            verify_data = {
+                "license_key": license_data.get("license_key"),
+                "machine_code": current_machine,
+            }
+
+            response = requests.post(self.verify_url, json=verify_data, timeout=10)
+
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("success"):
+                    return True, "许可证有效"
+                return False, result.get("message", "许可证无效")
+
+            # 如果在线验证失败，使用本地数据
+            expiry_date = datetime.strptime(license_data["expiry_date"], "%Y-%m-%d")
+            if datetime.now() > expiry_date:
+                return False, "许可证已过期"
+
+            return True, "许可证有效"
+
+        except Exception as e:
+            return False, f"验证过程出错: {str(e)}"
+
+    def _save_license(self, license_data):
+        """加密保存许可证数据"""
+        try:
+            os.makedirs(os.path.dirname(self.license_file), exist_ok=True)
+            encrypted_data = self.fernet.encrypt(json.dumps(license_data).encode())
+            with open(self.license_file, "wb") as f:
+                f.write(encrypted_data)
+        except Exception as e:
+            print(f"保存许可证出错: {e}")
+
+    def _load_license(self):
+        """加密读取许可证数据"""
+        try:
+            with open(self.license_file, "rb") as f:
+                encrypted_data = f.read()
+            decrypted_data = self.fernet.decrypt(encrypted_data)
+            return json.loads(decrypted_data)
+        except Exception as e:
+            print(f"读取许可证出错: {e}")
+            return None
