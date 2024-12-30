@@ -8,19 +8,22 @@ from datetime import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import base64
+import time
 
 
 class LicenseManager:
     def __init__(self):
-        self.license_file = os.path.join(
-            os.getenv("APPDATA"), "CursorPro", "license.json"
-        )
-        self.activation_url = (
-            "https://your-activation-server.com/activate"  # 替换为您的激活服务器地址
-        )
-        self.verify_url = (
-            "https://your-activation-server.com/verify"  # 替换为您的验证服务器地址
-        )
+        # 根据不同操作系统获取适当的配置目录
+        if platform.system() == "Windows":
+            config_dir = os.getenv("APPDATA")
+        elif platform.system() == "Darwin":  # macOS
+            config_dir = os.path.expanduser("~/Library/Application Support")
+        else:  # Linux 和其他类 Unix 系统
+            config_dir = os.path.expanduser("~/.config")
+
+        self.license_file = os.path.join(config_dir, "CursorPro", "license.json")
+        self.activation_url = "http://119.8.35.41:3003/activate"
+        self.verify_url = "http://119.8.35.41:3003/verify"
         self.key = b"Kj8nP9x2Qs5mY7vR4wL1hC3fA6tD0iB8"
 
     def encrypt(self, text):
@@ -89,32 +92,55 @@ class LicenseManager:
                 "activation_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             }
 
-            # 发送激活请求
-            response = requests.post(
-                self.activation_url, json=activation_data, timeout=10
-            )
+            try:
+                print("\n正在连接激活服务器...")
+                print("发送激活请求数据:", activation_data)
 
-            if response.status_code == 200:
-                result = response.json()
-                if result.get("success"):
-                    # 保存许可证信息
-                    license_data = {
-                        "license_key": license_key,
-                        "machine_code": machine_code,
-                        "activation_date": activation_data["activation_date"],
-                        "expiry_date": result.get("expiry_date"),
-                        "is_activated": True,
-                    }
+                response = requests.post(
+                    self.activation_url, json=activation_data, timeout=10
+                )
 
-                    self._save_license(license_data)
-                    return True, "激活成功！"
+                print(f"服务器响应状态码: {response.status_code}")
+                print(f"服务器响应内容: {response.text}")
+
+                if response.status_code == 200:
+                    result = response.json()
+                    if result.get("success"):
+                        # 保存许可证信息
+                        license_data = {
+                            "license_key": license_key,
+                            "machine_code": machine_code,
+                            "activation_date": activation_data["activation_date"],
+                            "expiry_date": result.get("expiry_date"),
+                            "is_active": True,
+                        }
+                        self._save_license(license_data)
+                        return True, "激活成功！"
+                    else:
+                        error_msg = result.get("message", "激活失败")
+                        print(f"激活失败: {error_msg}")
+                        return False, error_msg
                 else:
-                    return False, result.get("message", "激活失败")
-            else:
-                return False, "服务器连接失败"
+                    error_msg = f"服务器响应错误: HTTP {response.status_code}"
+                    print(error_msg)
+                    return False, error_msg
+
+            except requests.exceptions.ConnectionError as e:
+                error_msg = f"无法连接到激活服务器: {str(e)}"
+                print(error_msg)
+                return False, "无法连接到激活服务器，请检查网络连接"
+            except requests.exceptions.Timeout:
+                error_msg = "服务器响应超时"
+                print(error_msg)
+                return False, error_msg
 
         except Exception as e:
-            return False, f"激活过程出错: {str(e)}"
+            error_msg = f"激活过程出错: {str(e)}"
+            print(error_msg)
+            import traceback
+
+            print(traceback.format_exc())
+            return False, error_msg
 
     def verify_license(self):
         """验证许可证"""
@@ -137,23 +163,60 @@ class LicenseManager:
                 "machine_code": current_machine,
             }
 
-            response = requests.post(self.verify_url, json=verify_data, timeout=10)
+            try:
+                print("正在验证许可证...")
+                print("发送验证请求数据:", verify_data)
 
-            if response.status_code == 200:
-                result = response.json()
-                if result.get("success"):
-                    return True, "许可证有效"
-                return False, result.get("message", "许可证无效")
+                # 设置更长的超时时间
+                response = requests.post(
+                    self.verify_url, json=verify_data, timeout=30  # 增加超时时间到30秒
+                )
 
-            # 如果在线验证失败，使用本地数据
-            expiry_date = datetime.strptime(license_data["expiry_date"], "%Y-%m-%d")
-            if datetime.now() > expiry_date:
-                return False, "许可证已过期"
+                # 等待响应
+                time.sleep(2)  # 添加短暂延迟
 
-            return True, "许可证有效"
+                print(f"服务器响应状态码: {response.status_code}")
+
+                try:
+                    response_text = response.text
+                    print(f"服务器响应内容: {response_text}")
+                    result = response.json()
+                except Exception as e:
+                    print(f"解析响应失败: {str(e)}")
+                    return False, "服务器响应格式错误"
+
+                if response.status_code == 200:
+                    if result.get("success"):
+                        print("许可证验证成功")
+                        return True, "许可证有效"
+                    error_msg = result.get("message", "许可证无效")
+                    print(f"验证失败: {error_msg}")
+                    return False, error_msg
+
+                error_msg = f"服务器响应错误: HTTP {response.status_code}"
+                print(error_msg)
+                return False, error_msg
+
+            except requests.exceptions.ConnectionError as e:
+                error_msg = f"无法连接到验证服务器: {str(e)}"
+                print(error_msg)
+                return False, "无法连接到验证服务器，请检查网络连接"
+            except requests.exceptions.Timeout:
+                error_msg = "服务器响应超时"
+                print(error_msg)
+                return False, error_msg
+            except Exception as e:
+                error_msg = f"验证请求失败: {str(e)}"
+                print(error_msg)
+                return False, error_msg
 
         except Exception as e:
-            return False, f"验证过程出错: {str(e)}"
+            error_msg = f"验证过程出错: {str(e)}"
+            print(error_msg)
+            import traceback
+
+            print(traceback.format_exc())
+            return False, error_msg
 
     def _save_license(self, license_data):
         """加密保存许可证数据"""
