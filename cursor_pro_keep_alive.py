@@ -181,19 +181,41 @@ def delete_account(browser, tab):
         return False
 
 
-def get_cursor_session_token(tab):
+def get_cursor_session_token(tab, max_attempts=3, retry_interval=2):
+    """
+    获取Cursor会话token，带有重试机制
+    :param tab: 浏览器标签页
+    :param max_attempts: 最大尝试次数
+    :param retry_interval: 重试间隔(秒)
+    :return: session token 或 None
+    """
     print("开始获取cookie")
-    try:
-        # 获取指定域名的所有cookies
-        cookies = tab.cookies()
-        for cookie in cookies:
-            if cookie.get("name") == "WorkosCursorSessionToken":
-                return cookie["value"].split("%3A%3A")[1]
-        print("未能获取到CursorSessionToken")
-        return None
-    except Exception as e:
-        print(f"获取cookie失败: {str(e)}")
-        return None
+    attempts = 0
+
+    while attempts < max_attempts:
+        try:
+            cookies = tab.cookies()
+            for cookie in cookies:
+                if cookie.get("name") == "WorkosCursorSessionToken":
+                    return cookie["value"].split("%3A%3A")[1]
+
+            attempts += 1
+            if attempts < max_attempts:
+                print(
+                    f"第 {attempts} 次尝试未获取到CursorSessionToken，{retry_interval}秒后重试..."
+                )
+                time.sleep(retry_interval)
+            else:
+                print(f"已达到最大尝试次数({max_attempts})，获取CursorSessionToken失败")
+
+        except Exception as e:
+            print(f"获取cookie失败: {str(e)}")
+            attempts += 1
+            if attempts < max_attempts:
+                print(f"将在 {retry_interval} 秒后重试...")
+                time.sleep(retry_interval)
+
+    return None
 
 
 def update_cursor_auth(email=None, access_token=None, refresh_token=None):
@@ -269,22 +291,7 @@ def sign_up_account(browser, tab):
             print(e)
 
     handle_turnstile(tab)
-    print("等待进入设置页面")
-
-    # 等待页面加载完成
-    max_wait_time = 30  # 最大等待时间（秒）
-    start_time = time.time()
-    while time.time() - start_time < max_wait_time:
-        try:
-            # 检查页面是否仍在加载
-            is_loading = tab.run_js("return document.readyState !== 'complete'")
-            if not is_loading:
-                break
-            time.sleep(1)
-        except Exception as e:
-            print(f"检查页面加载状态时出错: {str(e)}")
-            break
-    print("进入设置页面")
+    time.sleep(8)
     tab.get(settings_url)
     try:
         usage_selector = (
