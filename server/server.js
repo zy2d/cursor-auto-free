@@ -52,6 +52,21 @@ function generateLicenseKey() {
     return encrypted;
 }
 
+// 在现有的加密函数下添加新的响应加密函数
+function encryptResponse(data) {
+    // 将对象转换为 JSON 字符串
+    const jsonStr = JSON.stringify(data);
+    const key = Buffer.from(process.env.ENCRYPTION_KEY, 'hex');
+    const iv = getIV();
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    let encrypted = cipher.update(jsonStr, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    // 将 IV 附加到加密文本中
+    return {
+        encrypted_data: iv.toString('hex') + ':' + encrypted
+    };
+}
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -86,22 +101,24 @@ app.post(`/${GENERATE_PATH}`, async (req, res) => {
     try {
         const licenseKey = generateLicenseKey();
         
-        // 保存生成的许可证记录
         await LicenseKey.create({
             licenseKey: licenseKey,
             isUsed: false
         });
 
-        return res.json({
+        // 加密响应数据
+        const responseData = {
             success: true,
             license_key: licenseKey
-        });
+        };
+        
+        return res.json(responseData);
     } catch (error) {
         console.error('生成许可证错误:', error);
-        return res.status(500).json({
+        return res.status(500).json(encryptResponse({
             success: false,
             message: '服务器错误'
-        });
+        }));
     }
 });
 
@@ -164,7 +181,7 @@ app.post('/activate', async (req, res) => {
             expiryDate: expiryDate,
             isActive: true,
             maxUsageCount: process.env.MAX_USAGE_COUNT || 10,
-            currentUsageCount: 0
+            currentUsageCount: 1
         }]);
        
 
@@ -172,17 +189,19 @@ app.post('/activate', async (req, res) => {
         licenseKeyRecord.isUsed = true;
         await licenseKeyRecord.save();
 
-        return res.json({
+        const responseData = {
             success: true,
             message: '激活成功',
             expiry_date: expiryDate
-        });
+        };
+        
+        return res.json(encryptResponse(responseData));
     } catch (error) {
         console.error('激活错误:', error);
-        return res.status(500).json({
+        return res.status(500).json(encryptResponse({
             success: false,
             message: '服务器错误'
-        });
+        }));
     }
 });
 
@@ -255,7 +274,7 @@ app.post('/verify', async (req, res) => {
         license.currentUsageCount += 1;
         await license.save();
 
-        return res.json({
+        const responseData = {
             success: true,
             message: '许可证有效',
             expiry_date: formatChinaTime(license.expiryDate, 'YYYY-MM-DD'),
@@ -263,13 +282,15 @@ app.post('/verify', async (req, res) => {
                 current: license.currentUsageCount,
                 max: license.maxUsageCount
             }
-        });
+        };
+        
+        return res.json(encryptResponse(responseData));
     } catch (error) {
         console.error('验证错误:', error);
-        return res.status(500).json({
+        return res.status(500).json(encryptResponse({
             success: false,
             message: '服务器错误'
-        });
+        }));
     }
 });
 
