@@ -189,6 +189,7 @@ def delete_account(browser, tab):
 
 def get_cursor_session_token(tab):
     """获取cursor session token"""
+    print("开始获取cookie")
     cookies = tab.cookies()
     cursor_session_token = None
     for cookie in cookies:
@@ -209,7 +210,6 @@ def update_cursor_auth(email=None, access_token=None, refresh_token=None):
 
 
 def sign_up_account(browser, tab):
-    """注册账户流程"""
     print("\n开始注册新账户...")
     tab.get(sign_up_url)
 

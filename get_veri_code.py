@@ -18,7 +18,7 @@ class EmailVerificationHandler:
             # 打开新标签页访问临时邮箱
             tab_mail = self.browser.new_tab(self.mail_url)
             self.browser.activate_tab(tab_mail)
-            logging.info("打开邮箱页面")
+            print("打开邮箱页面")
 
             # 输入用户名
             self._input_username(tab_mail, username)
