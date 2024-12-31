@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { getNowChinaTimeString } = require('../utils/date');
 
 const licenseKeySchema = new mongoose.Schema({
     licenseKey: {
@@ -11,8 +12,10 @@ const licenseKeySchema = new mongoose.Schema({
         default: false
     },
     generatedAt: {
-        type: Date,
-        default: Date.now
+        type: String,
+        default() {
+            return getNowChinaTimeString();
+        }
     }
 });
 

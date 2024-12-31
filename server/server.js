@@ -3,9 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const crypto = require('crypto');
-const moment = require('moment');
 const License = require('./models/License');
 const LicenseKey = require('./models/LicenseKey');
+const { formatChinaTime, getNowChinaTime, getNowChinaTimeString } = require('./utils/date');
 
 const app = express();
 
@@ -154,16 +154,16 @@ app.post('/activate', async (req, res) => {
             });
         }
 
-        // 创建新的许可证并标记许可证密钥为已使用
-        const expiryDate = moment().add(1, 'month').toDate();
+        // 更新过期时间计算，使用中国时区
+        const expiryDate = formatChinaTime(getNowChinaTime().add(1, 'month'), 'YYYY-MM-DD');
 
         await License.create([{
             licenseKey: license_key,
             machineCode: machine_code,
-            activationDate: activation_date || new Date(),
+            activationDate: activation_date ? activation_date : getNowChinaTimeString(),
             expiryDate: expiryDate,
             isActive: true,
-            maxUsageCount: process.env.MAX_USAGE_COUNT || 10, // 如果未指定，默认为100次
+            maxUsageCount: process.env.MAX_USAGE_COUNT || 10,
             currentUsageCount: 0
         }]);
        
@@ -175,7 +175,7 @@ app.post('/activate', async (req, res) => {
         return res.json({
             success: true,
             message: '激活成功',
-            expiry_date: expiryDate.toISOString().split('T')[0]
+            expiry_date: expiryDate
         });
     } catch (error) {
         console.error('激活错误:', error);
@@ -235,8 +235,8 @@ app.post('/verify', async (req, res) => {
             });
         }
 
-        // Check expiry
-        if (moment().isAfter(license.expiryDate)) {
+        // 使用中国时区检查过期时间
+        if (getNowChinaTime().isAfter(license.expiryDate)) {
             return res.status(400).json({
                 success: false,
                 message: '许可证已过期'
@@ -258,7 +258,7 @@ app.post('/verify', async (req, res) => {
         return res.json({
             success: true,
             message: '许可证有效',
-            expiry_date: license.expiryDate.toISOString().split('T')[0],
+            expiry_date: formatChinaTime(license.expiryDate, 'YYYY-MM-DD'),
             usage_count: {
                 current: license.currentUsageCount,
                 max: license.maxUsageCount

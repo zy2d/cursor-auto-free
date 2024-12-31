@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { getNowChinaTimeString } = require('../utils/date');
 const licenseSchema = new mongoose.Schema({
     licenseKey: {
         type: String,
@@ -11,12 +11,12 @@ const licenseSchema = new mongoose.Schema({
         required: true
     },
     activationDate: {
-        type: Date,
+        type: String,
         required: true,
-        default: Date.now
+        default: getNowChinaTimeString
     },
     expiryDate: {
-        type: Date,
+        type: String,
         required: true
     },
     isActive: {
