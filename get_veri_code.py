@@ -1,7 +1,6 @@
 from DrissionPage.common import Keys
 import time
 import re
-import logging
 
 
 class EmailVerificationHandler:
@@ -10,15 +9,14 @@ class EmailVerificationHandler:
         self.mail_url = mail_url
 
     def get_verification_code(self, email):
-        """获取邮箱验证码"""
         username = email.split("@")[0]
         code = None
 
         try:
+            print("打开邮箱页面")
             # 打开新标签页访问临时邮箱
             tab_mail = self.browser.new_tab(self.mail_url)
             self.browser.activate_tab(tab_mail)
-            print("打开邮箱页面")
 
             # 输入用户名
             self._input_username(tab_mail, username)
@@ -33,12 +31,11 @@ class EmailVerificationHandler:
             tab_mail.close()
 
         except Exception as e:
-            logging.error(f"获取验证码失败: {str(e)}")
+            print(f"获取验证码失败: {str(e)}")
 
         return code
 
     def _input_username(self, tab, username):
-        """输入用户名"""
         while True:
             if tab.ele("@id=pre_button"):
                 tab.actions.click("@id=pre_button")
@@ -50,17 +47,14 @@ class EmailVerificationHandler:
             time.sleep(1)
 
     def _get_latest_mail_code(self, tab):
-        """获取最新邮件中的验证码"""
         code = None
         while True:
             new_mail = tab.ele("@class=mail")
             if new_mail:
                 if new_mail.text:
-                    logging.info(f"最新的邮件：{new_mail.text}")
                     tab.actions.click("@class=mail")
                     break
                 else:
-                    logging.info(str(new_mail))
                     break
             time.sleep(1)
 
@@ -71,18 +65,16 @@ class EmailVerificationHandler:
             )
             if verification_code:
                 code = verification_code.group(1)
-                logging.info(f"验证码：{code}")
+                print(f"验证码：{code}")
             else:
-                logging.warning("未找到验证码")
+                print("未找到验证码")
 
         return code
 
     def _cleanup_mail(self, tab):
-        """清理邮件"""
         if tab.ele("@id=delete_mail"):
             tab.actions.click("@id=delete_mail")
             time.sleep(1)
 
         if tab.ele("@id=confirm_mail"):
             tab.actions.click("@id=confirm_mail")
-            logging.info("删除邮件")

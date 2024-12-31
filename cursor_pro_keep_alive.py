@@ -5,13 +5,10 @@ from license_manager import LicenseManager
 os.environ["PYTHONVERBOSE"] = "0"
 os.environ["PYINSTALLER_VERBOSE"] = "0"
 
-from DrissionPage import ChromiumOptions, Chromium
-from DrissionPage.common import Keys
 import re
 import time
 import random
 from cursor_auth_manager import CursorAuthManager
-from configparser import ConfigParser
 import os
 import sys
 import logging
@@ -141,9 +138,6 @@ def delete_account(browser, tab):
 
     handle_turnstile(tab)
     time.sleep(5)
-    # tab.get_screenshot('sign-in_success.png')
-    # print("登录账户截图")
-
     tab.get(settings_url)
     print("进入设置页面")
 
@@ -188,17 +182,18 @@ def delete_account(browser, tab):
 
 
 def get_cursor_session_token(tab):
-    """获取cursor session token"""
     print("开始获取cookie")
-    cookies = tab.cookies()
-    cursor_session_token = None
-    for cookie in cookies:
-        if cookie["name"] == "WorkosCursorSessionToken":
-            cursor_session_token = cookie["value"].split("%3A%3A")[1]
-            break
-    if not cursor_session_token:
+    try:
+        # 获取指定域名的所有cookies
+        cookies = tab.cookies()
+        for cookie in cookies:
+            if cookie.get("name") == "WorkosCursorSessionToken":
+                return cookie["value"].split("%3A%3A")[1]
         print("未能获取到CursorSessionToken")
-    return cursor_session_token
+        return None
+    except Exception as e:
+        print(f"获取cookie失败: {str(e)}")
+        return None
 
 
 def update_cursor_auth(email=None, access_token=None, refresh_token=None):
@@ -261,11 +256,7 @@ def sign_up_account(browser, tab):
                 break
             if tab.ele("@data-index=0"):
                 code = email_handler.get_verification_code(account)
-
-                if code:
-                    print("获取验证码成功：", code)
-                else:
-                    print("获取验证码失败，程序退出")
+                if not code:
                     return False
 
                 i = 0
@@ -278,7 +269,21 @@ def sign_up_account(browser, tab):
             print(e)
 
     handle_turnstile(tab)
-    time.sleep(random.uniform(1, 3))
+    print("等待进入设置页面")
+
+    # 等待页面加载完成
+    max_wait_time = 30  # 最大等待时间（秒）
+    start_time = time.time()
+    while time.time() - start_time < max_wait_time:
+        try:
+            # 检查页面是否仍在加载
+            is_loading = tab.run_js("return document.readyState !== 'complete'")
+            if not is_loading:
+                break
+            time.sleep(1)
+        except Exception as e:
+            print(f"检查页面加载状态时出错: {str(e)}")
+            break
     print("进入设置页面")
     tab.get(settings_url)
     try:
@@ -398,12 +403,9 @@ if __name__ == "__main__":
 
         tab.get(login_url)
 
-        print("开始注册账户")
         if sign_up_account(browser, tab):
             token = get_cursor_session_token(tab)
-            # print(f"CursorSessionToken: {token}")
-            print("账户注册成功")
-            if auto_update_cursor_auth:
+            if token:
                 update_cursor_auth(
                     email=account, access_token=token, refresh_token=token
                 )
