@@ -24,8 +24,10 @@ class LicenseManager:
             config_dir = os.path.expanduser("~/.config")
 
         self.license_file = os.path.join(config_dir, "CursorPro", "license.json")
-        self.activation_url = "http://cursor.chengazhen.me/activate"
-        self.verify_url = "http://cursor.chengazhen.me/verify"
+        # self.activation_url = "http://cursor.chengazhen.me/activate"
+        # self.verify_url = "http://cursor.chengazhen.me/verify"
+        self.activation_url = "http://127.0.0.1:3000/activate"
+        self.verify_url = "http://127.0.0.1:3000/verify"
         self.key = b"Kj8nP9x2Qs5mY7vR4wL1hC3fA6tD0iB8"
         self.encryption_key = b"f1e2d3c4b5a6978899aabbccddeeff00112233445566778899aabbccddeeff00"  # 与服务器端相同的密钥
 
@@ -97,19 +99,18 @@ class LicenseManager:
                 response = requests.post(
                     self.activation_url, json=activation_data, timeout=10
                 )
-
                 if response.status_code == 200:
                     try:
                         encrypted_response = response.json()
                         result = self.decrypt_response(
                             encrypted_response["encrypted_data"]
                         )
-                        if result.get("success"):
+                        if result.get("code") == 0:
                             license_data = {
                                 "license_key": license_key,
                                 "machine_code": machine_code,
                                 "activation_date": activation_data["activation_date"],
-                                "expiry_date": result.get("expiry_date"),
+                                "expiry_date": result.get("data").get("expiry_date"),
                                 "is_active": True,
                             }
                             self._save_license(license_data)
@@ -189,7 +190,7 @@ class LicenseManager:
                         result = self.decrypt_response(
                             encrypted_response["encrypted_data"]
                         )
-                        if result.get("success"):
+                        if result.get("code") == 0:
                             return True, "许可证有效"
                         return False, result.get("message", "许可证无效")
                     except Exception as e:

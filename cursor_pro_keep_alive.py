@@ -17,7 +17,7 @@ from get_veri_code import EmailVerificationHandler
 
 # 在文件开头设置日志
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
@@ -309,11 +309,9 @@ def sign_up_account(browser, tab):
             print("可用上限: " + total_usage)
     except Exception as e:
         print("获取可用上限失败")
-    # tab.get_screenshot("sign_up_success.png")
-    # print("注册账户截图")
     print("注册完成")
-    print("Cursor 账号： " + account)
-    print("       密码： " + password)
+    account_info = f"\nCursor 账号： {account}  密码： {password}"
+    logging.info(account_info)
     time.sleep(5)
     return True
 
