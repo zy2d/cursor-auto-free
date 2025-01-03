@@ -27,7 +27,7 @@ logging.basicConfig(
 
 
 def handle_turnstile(tab):
-    print("准备处理验证")
+    print("开始突破难关")
     try:
         while True:
             try:
@@ -40,29 +40,29 @@ def handle_turnstile(tab):
                 )
 
                 if challengeCheck:
-                    print("验证框加载完成")
+                    print("开始突破")
                     time.sleep(random.uniform(1, 3))
                     challengeCheck.click()
-                    print("验证按钮已点击，等待验证完成...")
                     time.sleep(2)
+                    print("突破成功")
                     return True
             except:
                 pass
 
             if tab.ele("@name=password"):
-                print("无需验证")
+                print("突破成功")
                 break
             if tab.ele("@data-index=0"):
-                print("无需验证")
+                print("突破成功")
                 break
             if tab.ele("Account Settings"):
-                print("无需验证")
+                print("突破成功")
                 break
 
             time.sleep(random.uniform(1, 2))
     except Exception as e:
         print(e)
-        print("跳过验证")
+        print("突破失败")
         return False
 
 
@@ -112,7 +112,7 @@ def update_cursor_auth(email=None, access_token=None, refresh_token=None):
 
 
 def sign_up_account(browser, tab):
-    print("\n开始注册新账户...")
+    print("开始执行...")
     tab.get(sign_up_url)
 
     try:
@@ -140,15 +140,15 @@ def sign_up_account(browser, tab):
             time.sleep(random.uniform(1, 3))
 
             tab.ele("@type=submit").click()
-            print("点击Continue按钮")
+            print("请稍等...")
 
     except Exception as e:
-        print("输入密码失败")
+        print("执行失败")
         return False
 
     time.sleep(random.uniform(1, 3))
     if tab.ele("This email is not available."):
-        print("This email is not available.")
+        print("执行失败")
         return False
 
     handle_turnstile(tab)
@@ -284,7 +284,7 @@ if __name__ == "__main__":
             else:
                 print("账户注册失败")
 
-        print("脚本执行完毕")
+        print("执行完毕")
 
     except Exception as e:
         logging.error(f"程序执行出错: {str(e)}")

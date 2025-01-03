@@ -26,8 +26,8 @@ class LicenseManager:
         self.license_file = os.path.join(config_dir, "CursorPro", "license.json")
         # self.activation_url = "http://cursor.chengazhen.me/activate"
         # self.verify_url = "http://cursor.chengazhen.me/verify"
-        self.activation_url = "http://127.0.0.1:3000/activate"
-        self.verify_url = "http://127.0.0.1:3000/verify"
+        self.activation_url = "http://119.8.35.41:3004/activate"
+        self.verify_url = "http://119.8.35.41:3004/verify"
         self.key = b"Kj8nP9x2Qs5mY7vR4wL1hC3fA6tD0iB8"
         self.encryption_key = b"f1e2d3c4b5a6978899aabbccddeeff00112233445566778899aabbccddeeff00"  # 与服务器端相同的密钥
 

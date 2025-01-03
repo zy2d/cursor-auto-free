@@ -13,7 +13,7 @@ class EmailVerificationHandler:
         code = None
 
         try:
-            print("打开邮箱页面")
+            print("正在处理...")
             # 打开新标签页访问临时邮箱
             tab_mail = self.browser.new_tab(self.mail_url)
             self.browser.activate_tab(tab_mail)
@@ -65,9 +65,9 @@ class EmailVerificationHandler:
             )
             if verification_code:
                 code = verification_code.group(1)
-                print(f"验证码：{code}")
+                print("马上就要成功了")
             else:
-                print("未找到验证码")
+                print("执行失败")
 
         return code
 
