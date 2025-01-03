@@ -117,4 +117,4 @@ jobs:
             CursorPro-MacOS-ARM64/CursorPro
             CursorPro-Linux/CursorPro
         env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
