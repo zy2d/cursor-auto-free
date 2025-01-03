@@ -11,7 +11,7 @@ import os
 import sys
 import logging
 from browser_utils import BrowserManager
-from get_veri_code import EmailVerificationHandler
+from get_email_code import EmailVerificationHandler
 
 # 在文件开头设置日志
 logging.basicConfig(
