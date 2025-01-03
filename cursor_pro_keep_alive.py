@@ -27,7 +27,6 @@ logging.basicConfig(
 
 
 def handle_turnstile(tab):
-    """处理 Turnstile 验证"""
     print("准备处理验证")
     try:
         while True:
@@ -64,120 +63,6 @@ def handle_turnstile(tab):
     except Exception as e:
         print(e)
         print("跳过验证")
-        return False
-
-
-def delete_account(browser, tab):
-    """删除账户流程"""
-    print("\n开始删除账户...")
-
-    try:
-        if tab.ele("@name=email"):
-            tab.ele("@name=email").input(account)
-            print("输入账号")
-            time.sleep(random.uniform(1, 3))
-    except Exception as e:
-        print(f"输入账号失败: {str(e)}")
-
-    try:
-        if tab.ele("Continue"):
-            tab.ele("Continue").click()
-            print("点击Continue")
-    except Exception as e:
-        print(f"点击Continue失败: {str(e)}")
-
-    handle_turnstile(tab)
-    time.sleep(5)
-
-    try:
-        if tab.ele("@name=password"):
-            tab.ele("@name=password").input(password)
-            print("输入密码")
-            time.sleep(random.uniform(1, 3))
-
-    except Exception as e:
-        print("输入密码失败")
-
-    sign_in_button = tab.ele(
-        "xpath:/html/body/div[1]/div/div/div[2]/div/form/div/button"
-    )
-    try:
-        if sign_in_button:
-            sign_in_button.click(by_js=True)
-            print("点击Sign in")
-    except Exception as e:
-        print(f"点击Sign in失败: {str(e)}")
-
-    handle_turnstile(tab)
-
-    # 处理验证码
-    while True:
-        try:
-            if tab.ele("Invalid email or password"):
-                print("Invalid email or password")
-                return False
-            if tab.ele("Account Settings"):
-                break
-            if tab.ele("@data-index=0"):
-                code = email_handler.get_verification_code(account)
-
-                if code:
-                    print("获取验证码成功：", code)
-                else:
-                    print("获取验证码失败，程序退出")
-                    return False
-
-                i = 0
-                for digit in code:
-                    tab.ele(f"@data-index={i}").input(digit)
-                    time.sleep(random.uniform(0.1, 0.3))
-                    i += 1
-                break
-        except Exception as e:
-            print(e)
-
-    handle_turnstile(tab)
-    time.sleep(5)
-    tab.get(settings_url)
-    print("进入设置页面")
-
-    try:
-        if tab.ele("@class=mt-1"):
-            tab.ele("@class=mt-1").click()
-            print("点击Adavance")
-            time.sleep(random.uniform(1, 2))
-    except Exception as e:
-        print(f"点击Adavance失败: {str(e)}")
-
-    try:
-        if tab.ele("Delete Account"):
-            tab.ele("Delete Account").click()
-            print("点击Delete Account")
-            time.sleep(random.uniform(1, 2))
-    except Exception as e:
-        print(f"点击Delete Account失败: {str(e)}")
-
-    try:
-        if tab.ele("tag:input"):
-            tab.actions.click("tag:input").type("delete")
-            print("输入delete")
-            time.sleep(random.uniform(1, 2))
-    except Exception as e:
-        print(f"输入delete失败: {str(e)}")
-
-    delete_button = tab.ele(
-        "xpath:/html/body/main/div/div/div/div/div/div[1]/div[2]/div[3]/div[2]/div/div/div[2]/button[2]"
-    )
-    try:
-        if delete_button:
-            print("点击Delete")
-            delete_button.click()
-            time.sleep(5)
-            # tab.get_screenshot('delete_account.png')
-            # print("删除账户截图")
-            return True
-    except Exception as e:
-        print(f"点击Delete失败: {str(e)}")
         return False
 
 
@@ -232,7 +117,6 @@ def sign_up_account(browser, tab):
 
     try:
         if tab.ele("@name=first_name"):
-            print("已打开注册页面")
             tab.actions.click("@name=first_name").input(first_name)
             time.sleep(random.uniform(1, 3))
 
@@ -240,11 +124,9 @@ def sign_up_account(browser, tab):
             time.sleep(random.uniform(1, 3))
 
             tab.actions.click("@name=email").input(account)
-            print("输入邮箱")
             time.sleep(random.uniform(1, 3))
 
             tab.actions.click("@type=submit")
-            print("点击注册按钮")
 
     except Exception as e:
         print("打开注册页面失败")
@@ -255,7 +137,6 @@ def sign_up_account(browser, tab):
     try:
         if tab.ele("@name=password"):
             tab.ele("@name=password").input(password)
-            print("输入密码")
             time.sleep(random.uniform(1, 3))
 
             tab.ele("@type=submit").click()
@@ -314,23 +195,6 @@ def sign_up_account(browser, tab):
     logging.info(account_info)
     time.sleep(5)
     return True
-
-
-def cleanup_temp_files():
-    """清理临时文件和缓存"""
-    try:
-        temp_dirs = [
-            os.path.join(os.getcwd(), "__pycache__"),
-            os.path.join(os.getcwd(), "build"),
-        ]
-
-        for dir_path in temp_dirs:
-            if os.path.exists(dir_path):
-                import shutil
-
-                shutil.rmtree(dir_path)
-    except Exception as e:
-        logging.warning(f"清理临时文件失败: {str(e)}")
 
 
 class EmailGenerator:

@@ -4,9 +4,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const License = require('./models/License');
 const LicenseKey = require('./models/LicenseKey');
-const { formatChinaTime, getNowChinaTime, getNowChinaTimeString } = require('./utils/date');
+const { formatChinaTime, getNowChinaTime, getNowChinaTimeString, moment } = require('./utils/date');
 const { encryptLicenseKey, decryptLicenseKey, generateLicenseKey, encryptResponse } = require('./utils/encryption');
-
+const { validateStar } = require('./utils/validateStar');
+const UserGeneration = require('./models/UserGeneration');
 const app = express();
 
 // Middleware
@@ -31,11 +32,11 @@ mongoose.connect(process.env.MONGODB_URI, {
     socketTimeoutMS: 45000, // Socket 超时
     family: 4, // 强制使用 IPv4
 })
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1); // 如果连接失败，终止程序
-});
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1); // 如果连接失败，终止程序
+    });
 
 // 添加连接错误处理
 mongoose.connection.on('error', err => {
@@ -53,10 +54,54 @@ const GENERATE_PATH = process.env.GENERATE_PATH || 'xx-zz-yy-dd';
 console.log('License generation path:', GENERATE_PATH);
 
 // Generate license key endpoint
-app.post(`/${GENERATE_PATH}`, async (req, res) => {
+app.get(`/${GENERATE_PATH}`, async (req, res) => {
     try {
+        const { username } = req.query;
+        if (username !== 'ccj') {
+            const starResult = await validateStar(username);
+            if (starResult.code === -1 || starResult.hasStarred === false) {
+                return res.status(200).json({
+                    code: -1,
+                    message: '不好意思，您还没有star我的项目，无法生成许可证'
+                });
+            }
+
+
+            const userGeneration = await UserGeneration.findOne({ username: username });
+
+
+
+            if (!userGeneration) {
+                await UserGeneration.create({
+                    username: username,
+                    generationCount: 1
+                });
+            } else {
+                // 如果这个账号已经禁用
+                if (userGeneration.isDisabled) {
+                    return res.status(200).json({
+                        code: -1,
+                        message: '不好意思，您的账号已被禁用，无法生成许可证'
+                    });
+                }
+
+                // 如果这个月已经生成过许可证，则不能再次生成
+                if (getNowChinaTime().month() === moment(userGeneration.lastGenerationTime).month()) {
+                    return res.status(200).json({
+                        code: -1,
+                        message: '不好意思，这个月您已经生成过许可证，无法再次生成'
+                    });
+                }
+
+                userGeneration.generationCount += 1;
+                userGeneration.lastGenerationTime = getNowChinaTimeString();
+                await userGeneration.save();
+            }
+        }
+
+
         const licenseKey = generateLicenseKey();
-        
+
         await LicenseKey.create({
             licenseKey: licenseKey,
             isUsed: false
@@ -67,7 +112,7 @@ app.post(`/${GENERATE_PATH}`, async (req, res) => {
             code: 0,
             data: licenseKey
         };
-        
+
         return res.json(responseData);
     } catch (error) {
         console.error('生成许可证错误:', error);
@@ -124,7 +169,7 @@ app.post('/activate', async (req, res) => {
             return res.status(200).json(encryptResponse({
                 code: -1,
                 message: '此许可证已被激活，不能重复使用'
-            })) ;
+            }));
         }
 
         // 更新过期时间计算，使用中国时区
@@ -139,7 +184,7 @@ app.post('/activate', async (req, res) => {
             maxUsageCount: process.env.MAX_USAGE_COUNT || 10,
             currentUsageCount: 1
         }]);
-       
+
 
         // 更新许可证密钥状态为已使用
         licenseKeyRecord.isUsed = true;
@@ -152,7 +197,7 @@ app.post('/activate', async (req, res) => {
                 expiry_date: expiryDate
             }
         };
-        
+
         return res.json(encryptResponse(responseData));
     } catch (error) {
         console.error('激活错误:', error);
@@ -188,7 +233,7 @@ app.post('/verify', async (req, res) => {
 
         // Find license
         const license = await License.findOne({ licenseKey: license_key });
-        
+
         if (!license) {
             return res.status(200).json(encryptResponse({
                 code: -1,
@@ -243,7 +288,7 @@ app.post('/verify', async (req, res) => {
                 }
             }
         };
-        
+
         return res.json(encryptResponse(responseData));
     } catch (error) {
         console.error('验证错误:', error);
