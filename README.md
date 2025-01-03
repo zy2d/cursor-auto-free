@@ -58,19 +58,5 @@ chmod +x ./CursorPro
 ## 免责声明
 本工具仅供学习研究使用，请遵守相关服务条款。使用本工具产生的任何后果由使用者自行承担。
 
-## cursor-id-modifier 使用说明
-> 工具来源 https://github.com/yuaotian/go-cursor-help
-
-下载之后，使用管理员权限运行就行。
-
-mac方式：
-```bash
-chmod +x ./cursor-id-modifier
-sudo ./cursor-id-modifier
-```
-
-windows方式：
-右键选择以管理员权限运行就行。
-
 
 仓库源码来自开源；自行优化了验证和邮箱注册逻辑；解决了无法获取邮箱验证码的问题。

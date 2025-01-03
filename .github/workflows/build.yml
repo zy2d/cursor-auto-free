@@ -2,6 +2,8 @@ name: Build Executables
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'  # 添加标签触发条件，匹配 v1.0.0 这样的标签
 
@@ -61,7 +63,7 @@ jobs:
         path: dist/CursorPro
 
   build-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v2
@@ -89,7 +91,7 @@ jobs:
 
   create-release:
     needs: [build-windows, build-macos-arm64, build-linux]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: startsWith(github.ref, 'refs/tags/')
     
     steps:
@@ -98,15 +100,19 @@ jobs:
         with:
           path: artifacts
           
-      - name: Display structure of downloaded files
-        run: ls -R artifacts
+      - name: Create release archives
+        run: |
+          cd artifacts
+          zip -r CursorPro-Windows.zip CursorPro-Windows/
+          zip -r CursorPro-MacOS-ARM64.zip CursorPro-MacOS-ARM64/
+          zip -r CursorPro-Linux.zip CursorPro-Linux/
           
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/CursorPro-Windows/CursorPro.exe
-            artifacts/CursorPro-MacOS-ARM64/CursorPro
-            artifacts/CursorPro-Linux/CursorPro
+            artifacts/CursorPro-Windows.zip
+            artifacts/CursorPro-MacOS-ARM64.zip
+            artifacts/CursorPro-Linux.zip
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
