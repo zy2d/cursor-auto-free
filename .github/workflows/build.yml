@@ -2,7 +2,6 @@ name: Build Executables
 
 on:
   push:
-    branches: [ "main", "master" ]  # 只在主分支推送时触发
     tags:
       - 'v*'  # 添加标签触发条件，匹配 v1.0.0 这样的标签
 
