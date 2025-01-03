@@ -32,7 +32,7 @@ jobs:
         name: CursorPro-Windows
         path: dist/CursorPro.exe
 
-  build-macos:
+  build-macos-arm64:
     runs-on: macos-latest
     
     steps:
@@ -49,12 +49,68 @@ jobs:
         pip install pyinstaller
         pip install -r requirements.txt
         
-    - name: Build MacOS executable
+    - name: Build MacOS ARM executable
       run: |
         pyinstaller CursorKeepAlive.spec
         
-    - name: Upload MacOS artifact
+    - name: Upload MacOS ARM artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CursorPro-MacOS
+        name: CursorPro-MacOS-ARM64
+        path: dist/CursorPro
+
+  build-macos-x86:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+        
+    - name: Build MacOS x86 executable
+      env:
+        ARCHFLAGS: "-arch x86_64"
+      run: |
+        pyinstaller --target-arch x86_64 CursorKeepAlive.spec
+        
+    - name: Upload MacOS x86 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: CursorPro-MacOS-x86_64
+        path: dist/CursorPro
+
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+        
+    - name: Build Linux executable
+      run: |
+        pyinstaller CursorKeepAlive.spec
+        
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: CursorPro-Linux
         path: dist/CursorPro
