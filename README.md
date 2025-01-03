@@ -3,38 +3,18 @@
 # Cursor Pro 自动化工具使用说明
 
 ## 功能介绍
-本工具可以自动化完成 Cursor Pro 账号的删除和重新注册流程，支持自动验证码处理和本地认证更新。
+自动注册账号，自动刷新本地token，解放双手。
+
+目前是点star 送激活码，所以大家点个star 吧。 也不用担心人家做注册机，我没有打印token，所以大家放心。
 
 
 ## 重要提示
-**1.确保你有一个chrome浏览器；**
+**1.确保你有一个chrome浏览器；如果你没有；[下载地址](https://www.google.com/intl/en_pk/chrome/)**
 
-**2.随机邮箱尽量自己命名，比如你的名字叫彭于晏，那你的邮箱名就是 pengyuyan@mailto.plus，如果你感觉很多人跟你同名，那你就加点字母**
+**2.首先，你要自己已经登录过账号不管你的账号是不是有效，登录是必须的。**
 
-**3.有一个稳定的网络连接。尽量是国外的节点。**
+**3.有一个稳定的网络连接。尽量是国外的节点。不要开启全局代理。一定不要开启全局代理。**
 
-
-
-## 使用前准备
-
-
-1. 配置文件设置
-在与应用相同目录下创建 `config.ini` 文件：
-```ini
-[Account]
-email = your_email@tempmail.plus    # 必须使用 tempmail.plus 的邮箱
-password = your_password            # 设置登录密码
-first_name = your_first_name        # 英文名
-last_name = your_last_name          # 英文姓
-```
-
-2. 确保文件结构：
-```
-应用目录/
-├── CursorPro.app (Mac) 或 CursorPro.exe (Windows)
-├── config.ini
-└── turnstilePatch/    # 验证插件目录
-```
 
 ## 运行方法
 
@@ -54,6 +34,12 @@ chmod +x ./CursorPro
 ### Windows 版本
 直接双击运行 `CursorPro.exe`
 
+
+## 如何验证是否有效
+**运行脚本完成之后，重启你的编辑器，你会看到下面图片的账号和你的脚本输出的日志账号一致就搞定了。**
+![image](./screen/截屏2025-01-01%2010.20.08.png)
+
+
 ## 使用注意事项
 
 1. 运行环境要求：
@@ -65,22 +51,29 @@ chmod +x ./CursorPro
    - 等待程序自动完成所有操作
    - 看到"脚本执行完毕"提示后再关闭程序
 
-3. 重要提示：
-   - 确保 config.ini 配置正确
-   - 邮箱必须是 tempmail.plus 的临时邮箱
-   - 运行过程中请勿操作鼠标和键盘
-
 ## 常见问题解决
 
-1. 提示"配置文件不存在"：
-   - 检查 config.ini 是否在正确位置
-   - 确保配置文件格式正确
-
-2. 程序运行过程中卡住：
+1. 程序运行过程中卡住：
    - 检查网络连接
    - 重启程序重试
-   - 你的邮箱可能是一个无效邮箱
 
 
 ## 免责声明
 本工具仅供学习研究使用，请遵守相关服务条款。使用本工具产生的任何后果由使用者自行承担。
+
+## cursor-id-modifier 使用说明
+> 工具来源 https://github.com/yuaotian/go-cursor-help
+
+下载之后，使用管理员权限运行就行。
+
+mac方式：
+```bash
+chmod +x ./cursor-id-modifier
+sudo ./cursor-id-modifier
+```
+
+windows方式：
+右键选择以管理员权限运行就行。
+
+
+仓库源码来自开源；自行优化了验证和邮箱注册逻辑；解决了无法获取邮箱验证码的问题。
