@@ -1,7 +1,5 @@
 import os
 
-from license_manager import LicenseManager
-
 os.environ["PYTHONVERBOSE"] = "0"
 os.environ["PYINSTALLER_VERBOSE"] = "0"
 
@@ -234,20 +232,6 @@ class EmailGenerator:
 if __name__ == "__main__":
     browser_manager = None
     try:
-        license_manager = LicenseManager()
-
-        # 验证许可证
-        is_valid, message = license_manager.verify_license()
-        if not is_valid:
-            print(f"许可证验证失败: {message}")
-            # 提示用户激活
-            license_key = input("请输入激活码: ")
-            success, activate_message = license_manager.activate_license(license_key)
-            if not success:
-                print(f"激活失败: {activate_message}")
-                sys.exit(1)
-            print("激活成功！")
-
         # 初始化浏览器
         browser_manager = BrowserManager()
         browser = browser_manager.init_browser()
