@@ -25,6 +25,9 @@ class CursorAuthManager:
         :return: bool 是否成功更新
         """
         updates = []
+        # 登录状态
+        updates.append(("cursorAuth/cachedSignUpType", "Auth_0"))
+
         if email is not None:
             updates.append(("cursorAuth/cachedEmail", email))
         if access_token is not None:
@@ -42,8 +45,17 @@ class CursorAuthManager:
             cursor = conn.cursor()
 
             for key, value in updates:
-                query = "UPDATE itemTable SET value = ? WHERE key = ?"
-                cursor.execute(query, (value, key))
+
+                # 如果没有更新任何行,说明key不存在,执行插入
+                # 检查 accessToken 是否存在
+                check_query = f"SELECT COUNT(*) FROM itemTable WHERE key = ?"
+                cursor.execute(check_query, (key,))
+                if cursor.fetchone()[0] == 0:
+                    insert_query = "INSERT INTO itemTable (key, value) VALUES (?, ?)"
+                    cursor.execute(insert_query, (key, value))
+                else:
+                    update_query = "UPDATE itemTable SET value = ? WHERE key = ?"
+                    cursor.execute(update_query, (value, key))
 
                 if cursor.rowcount > 0:
                     print(f"成功更新 {key.split('/')[-1]}")
