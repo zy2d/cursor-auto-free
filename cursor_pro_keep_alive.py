@@ -3,15 +3,14 @@ import os
 os.environ["PYTHONVERBOSE"] = "0"
 os.environ["PYINSTALLER_VERBOSE"] = "0"
 
-import re
 import time
 import random
 from cursor_auth_manager import CursorAuthManager
 import os
-import sys
 import logging
 from browser_utils import BrowserManager
 from get_email_code import EmailVerificationHandler
+from logo import print_logo
 
 # 在文件开头设置日志
 logging.basicConfig(
@@ -230,6 +229,7 @@ class EmailGenerator:
 
 
 if __name__ == "__main__":
+    print_logo()
     browser_manager = None
     try:
         # 初始化浏览器
