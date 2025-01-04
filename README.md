@@ -31,13 +31,21 @@ chmod +x ./CursorPro
 ```
    - 或直接在访达（Finder）中双击运行
 
+
+提示：如果遇到下面的问题; [解决方案](https://sysin.org/blog/macos-if-crashes-when-opening/)
+
+
+![image](./screen/c29ea438-ee74-4ba1-bbf6-25e622cdfad5.png)
+
+
+
 ### Windows 版本
 直接双击运行 `CursorPro.exe`
 
 
 ## 如何验证是否有效
 **运行脚本完成之后，重启你的编辑器，你会看到下面图片的账号和你的脚本输出的日志账号一致就搞定了。**
-![image](./screen/截屏2025-01-01%2010.20.08.png)
+![image](./screen/截屏2025-01-04%2009.44.48.png)
 
 
 ## 使用注意事项
