@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 
 a = Analysis(
     ['cursor_pro_keep_alive.py'],
@@ -20,6 +21,8 @@ a = Analysis(
 
 pyz = PYZ(a.pure)
 
+target_arch = os.environ.get('TARGET_ARCH', None)
+
 exe = EXE(
     pyz,
     a.scripts,
@@ -35,9 +38,9 @@ exe = EXE(
     runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
+    argv_emulation=True,  # 对非Mac平台无影响
+    target_arch=target_arch,  # 仅在需要时通过环境变量指定
     codesign_identity=None,
     entitlements_file=None,
     icon=None
-) 
+)
