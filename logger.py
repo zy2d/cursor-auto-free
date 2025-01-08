@@ -14,28 +14,34 @@ logging.basicConfig(
 )
 
 def main_task():
+    """
+    Main task execution function. Simulates a workflow and handles errors.
+    """
     try:
-        # Example task
         logging.info("Starting the main task...")
-        
-        # Simulated error
-        if some_condition():  # Replace with actual logic
+
+        # Simulated task and error condition
+        if some_condition():
             raise ValueError("Simulated error occurred.")
-        
+
         logging.info("Main task completed successfully.")
-    
+
     except ValueError as ve:
-        logging.error(f"ValueError: {ve}")
+        logging.error(f"ValueError occurred: {ve}", exc_info=True)
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
+        logging.error(f"Unexpected error occurred: {e}", exc_info=True)
     finally:
         logging.info("Task execution finished.")
 
 def some_condition():
-    # Simulate an error condition
+    """
+    Simulates an error condition. Returns True to trigger an error.
+    Replace this logic with actual task conditions.
+    """
     return True
 
 if __name__ == "__main__":
+    # Application workflow
     logging.info("Application started.")
     main_task()
     logging.info("Application exited.")
