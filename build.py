@@ -2,7 +2,6 @@ import warnings
 import os
 import platform
 import subprocess
-import sys
 import time
 import threading
 
@@ -17,6 +16,7 @@ CURSOR_LOGO = """
   ╚██████╗╚██████╔╝██║  ██║███████║╚██████╔╝██║  ██║
    ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝
 """
+
 
 class LoadingAnimation:
     def __init__(self):
@@ -42,42 +42,50 @@ class LoadingAnimation:
             idx += 1
             time.sleep(0.1)
 
+
 def print_logo():
     print("\033[96m" + CURSOR_LOGO + "\033[0m")
     print("\033[93m" + "Building Cursor Keep Alive...".center(56) + "\033[0m\n")
 
-def progress_bar(progress, total, prefix='', length=50):
+
+def progress_bar(progress, total, prefix="", length=50):
     filled = int(length * progress // total)
-    bar = '█' * filled + '░' * (length - filled)
+    bar = "█" * filled + "░" * (length - filled)
     percent = f"{100 * progress / total:.1f}"
-    print(f'\r{prefix} |{bar}| {percent}% Complete', end='', flush=True)
+    print(f"\r{prefix} |{bar}| {percent}% Complete", end="", flush=True)
     if progress == total:
         print()
+
 
 def simulate_progress(message, duration=1.0, steps=20):
     print(f"\033[94m{message}\033[0m")
     for i in range(steps + 1):
         time.sleep(duration / steps)
-        progress_bar(i, steps, prefix='Progress:', length=40)
+        progress_bar(i, steps, prefix="Progress:", length=40)
+
 
 def filter_output(output):
     """ImportantMessage"""
     if not output:
         return ""
     important_lines = []
-    for line in output.split('\n'):
+    for line in output.split("\n"):
         # Only keep lines containing specific keywords
-        if any(keyword in line.lower() for keyword in ['error:', 'failed:', 'completed', 'directory:']):
+        if any(
+            keyword in line.lower()
+            for keyword in ["error:", "failed:", "completed", "directory:"]
+        ):
             important_lines.append(line)
-    return '\n'.join(important_lines)
+    return "\n".join(important_lines)
+
 
 def build():
     # Clear screen
-    os.system('cls' if platform.system().lower() == "windows" else 'clear')
-    
+    os.system("cls" if platform.system().lower() == "windows" else "clear")
+
     # Print logo
     print_logo()
-    
+
     system = platform.system().lower()
     spec_file = os.path.join("CursorKeepAlive.spec")
 
@@ -99,7 +107,7 @@ def build():
         output_dir,
         "--workpath",
         f"build/{system}",
-        "--noconfirm"
+        "--noconfirm",
     ]
 
     loading = LoadingAnimation()
@@ -107,21 +115,23 @@ def build():
         simulate_progress("Running PyInstaller...", 2.0)
         loading.start("Building in progress")
         result = subprocess.run(
-            pyinstaller_command,
-            check=True,
-            capture_output=True,
-            text=True
+            pyinstaller_command, check=True, capture_output=True, text=True
         )
         loading.stop()
-        
+
         if result.stderr:
-            filtered_errors = [line for line in result.stderr.split('\n') 
-                             if any(keyword in line.lower() 
-                                   for keyword in ['error:', 'failed:', 'completed', 'directory:'])]
+            filtered_errors = [
+                line
+                for line in result.stderr.split("\n")
+                if any(
+                    keyword in line.lower()
+                    for keyword in ["error:", "failed:", "completed", "directory:"]
+                )
+            ]
             if filtered_errors:
                 print("\033[93mBuild Warnings/Errors:\033[0m")
-                print('\n'.join(filtered_errors))
-            
+                print("\n".join(filtered_errors))
+
     except subprocess.CalledProcessError as e:
         loading.stop()
         print(f"\033[91mBuild failed with error code {e.returncode}\033[0m")
@@ -131,7 +141,9 @@ def build():
         return
     except FileNotFoundError:
         loading.stop()
-        print("\033[91mError: Please ensure PyInstaller is installed (pip install pyinstaller)\033[0m")
+        print(
+            "\033[91mError: Please ensure PyInstaller is installed (pip install pyinstaller)\033[0m"
+        )
         return
     except KeyboardInterrupt:
         loading.stop()
@@ -144,11 +156,16 @@ def build():
     if os.path.exists("config.ini.example"):
         simulate_progress("Copying configuration file...", 0.5)
         if system == "windows":
-            subprocess.run(["copy", "config.ini.example", f"{output_dir}\\config.ini"], shell=True)
+            subprocess.run(
+                ["copy", "config.ini.example", f"{output_dir}\\config.ini"], shell=True
+            )
         else:
             subprocess.run(["cp", "config.ini.example", f"{output_dir}/config.ini"])
 
-    print(f"\n\033[92mBuild completed successfully! Output directory: {output_dir}\033[0m")
+    print(
+        f"\n\033[92mBuild completed successfully! Output directory: {output_dir}\033[0m"
+    )
+
 
 if __name__ == "__main__":
     build()
