@@ -1,5 +1,7 @@
 import os
 
+from exit_cursor import ExitCursor
+
 os.environ["PYTHONVERBOSE"] = "0"
 os.environ["PYINSTALLER_VERBOSE"] = "0"
 
@@ -11,7 +13,7 @@ from logger import logging
 from browser_utils import BrowserManager
 from get_email_code import EmailVerificationHandler
 from logo import print_logo
-
+import psutil
 
 
 def handle_turnstile(tab):
@@ -219,10 +221,12 @@ class EmailGenerator:
         }
 
 
+
 if __name__ == "__main__":
     print_logo()
     browser_manager = None
     try:
+        ExitCursor()
         # 初始化浏览器
         browser_manager = BrowserManager()
         browser = browser_manager.init_browser()
