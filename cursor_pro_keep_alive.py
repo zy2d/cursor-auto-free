@@ -7,20 +7,11 @@ import time
 import random
 from cursor_auth_manager import CursorAuthManager
 import os
-import logging
+from logger import logging
 from browser_utils import BrowserManager
 from get_email_code import EmailVerificationHandler
 from logo import print_logo
 
-# 在文件开头设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("cursor_keep_alive.log", encoding="utf-8"),
-    ],
-)
 
 
 def handle_turnstile(tab):
