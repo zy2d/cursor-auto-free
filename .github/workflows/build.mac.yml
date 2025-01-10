@@ -44,8 +44,8 @@ jobs:
       with:
         name: CursorPro-MacOS-ARM64
         path: |
-          dist/CursorPro
           dist/.env.example
+          dist/CursorPro
   create-release:
     needs: [build-macos-arm64]
     runs-on: ubuntu-22.04
