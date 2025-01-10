@@ -41,8 +41,7 @@ jobs:
       with:
         name: CursorPro-MacOS-ARM64
         path: |
-          dist/CursorPro
-          dist/.env
+          dist/*
 
   create-release:
     needs: [build-macos-arm64]
