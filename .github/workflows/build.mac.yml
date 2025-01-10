@@ -32,6 +32,9 @@ jobs:
     - name: Copy and rename env file
       run: |
         cp .env.example dist/.env
+        ls -la dist/.env || (echo "ENV file not found!" && exit 1)
+        cat dist/.env | head -n 1 || (echo "Cannot read ENV file!" && exit 1)
+        
         
     - name: Upload MacOS ARM artifact
       uses: actions/upload-artifact@v4
