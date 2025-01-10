@@ -90,6 +90,7 @@ chmod +x ./CursorPro
 
 ## 更新日志
 2025-01-09 增加了 log 日志，方便调试，增加了退出cursor，自动构建功能
+2025-01-10 修改为使用cloudflared 域名
 
 仓库核心源码来自[gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto)；自行优化了验证和邮箱注册逻辑；解决了无法获取邮箱验证码的问题。
 
