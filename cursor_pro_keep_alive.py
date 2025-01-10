@@ -149,7 +149,7 @@ def sign_up_account(browser, tab):
             if tab.ele("Account Settings"):
                 break
             if tab.ele("@data-index=0"):
-                code = email_handler.get_verification_code(account)
+                code = email_handler.get_verification_code()
                 if not code:
                     return False
 
