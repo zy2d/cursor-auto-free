@@ -36,6 +36,9 @@ jobs:
         cat dist/.env | head -n 1 || (echo "Cannot read ENV file!" && exit 1)
         
         
+    - name: List dist directory contents
+      run: ls -la dist/
+        
     - name: Upload MacOS ARM artifact
       uses: actions/upload-artifact@v4
       with:
