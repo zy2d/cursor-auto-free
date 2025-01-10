@@ -31,9 +31,9 @@ jobs:
         
     - name: Copy and rename env file
       run: |
-        cp .env.example dist/.env
-        ls -la dist/.env || (echo "ENV file not found!" && exit 1)
-        cat dist/.env | head -n 1 || (echo "Cannot read ENV file!" && exit 1)
+        cp .env.example dist/.env.example
+        ls -la dist/.env.example || (echo "ENV file not found!" && exit 1)
+        cat dist/.env.example | head -n 1 || (echo "Cannot read ENV file!" && exit 1)
         
         
     - name: List dist directory contents
@@ -45,7 +45,6 @@ jobs:
         name: CursorPro-MacOS-ARM64
         path: |
           dist/*
-
   create-release:
     needs: [build-macos-arm64]
     runs-on: ubuntu-22.04
