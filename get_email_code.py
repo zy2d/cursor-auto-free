@@ -1,15 +1,16 @@
 from DrissionPage.common import Keys
 import time
 import re
+from config import Config
 
 
 class EmailVerificationHandler:
     def __init__(self, browser, mail_url="https://tempmail.plus"):
         self.browser = browser
         self.mail_url = mail_url
+        self.username = Config().get_temp_mail()
 
-    def get_verification_code(self, email):
-        username = email.split("@")[0]
+    def get_verification_code(self):
         code = None
 
         try:
@@ -19,7 +20,7 @@ class EmailVerificationHandler:
             self.browser.activate_tab(tab_mail)
 
             # 输入用户名
-            self._input_username(tab_mail, username)
+            self._input_username(tab_mail)
 
             # 等待并获取最新邮件
             code = self._get_latest_mail_code(tab_mail)
@@ -35,14 +36,14 @@ class EmailVerificationHandler:
 
         return code
 
-    def _input_username(self, tab, username):
+    def _input_username(self, tab):
         while True:
             if tab.ele("@id=pre_button"):
                 tab.actions.click("@id=pre_button")
                 time.sleep(0.5)
                 tab.run_js('document.getElementById("pre_button").value = ""')
                 time.sleep(0.5)
-                tab.actions.input(username).key_down(Keys.ENTER).key_up(Keys.ENTER)
+                tab.actions.input(self.username).key_down(Keys.ENTER).key_up(Keys.ENTER)
                 break
             time.sleep(1)
 

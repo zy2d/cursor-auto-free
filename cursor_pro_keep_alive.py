@@ -14,7 +14,7 @@ from logger import logging
 from browser_utils import BrowserManager
 from get_email_code import EmailVerificationHandler
 from logo import print_logo
-import psutil
+from config import Config
 
 
 def handle_turnstile(tab):
@@ -191,7 +191,6 @@ def sign_up_account(browser, tab):
 class EmailGenerator:
     def __init__(
         self,
-        domain="mailto.plus",
         password="".join(
             random.choices(
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*",
@@ -201,7 +200,7 @@ class EmailGenerator:
         first_name="yuyan",
         last_name="peng",
     ):
-        self.domain = domain
+        self.domain = Config().get_domain()
         self.default_password = password
         self.default_first_name = first_name
         self.default_last_name = last_name
