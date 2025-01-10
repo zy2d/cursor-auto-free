@@ -37,7 +37,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: CursorPro-Windows
-        path: dist/CursorPro.exe
+        path: |
+          dist/CursorPro.exe
+          dist/.env
 
   build-macos-arm64:
     runs-on: macos-latest
@@ -68,7 +70,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: CursorPro-MacOS-ARM64
-        path: dist/CursorPro
+        path: |
+          dist/CursorPro
+          dist/.env
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -99,7 +103,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: CursorPro-Linux
-        path: dist/CursorPro
+        path: |
+          dist/CursorPro
+          dist/.env
 
   build-macos-intel:
     runs-on: macos-latest
@@ -136,7 +142,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: CursorPro-MacOS-Intel
-        path: dist/CursorPro
+        path: |
+          dist/CursorPro
+          dist/.env
 
   create-release:
     needs: [build-windows, build-macos-arm64, build-linux, build-macos-intel]
