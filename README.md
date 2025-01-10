@@ -1,5 +1,3 @@
-
-
 # Cursor Pro 自动化工具使用说明
 
 ## 功能介绍
@@ -14,6 +12,27 @@ https://github.com/chengazhen/cursor-auto-free/releases
 **2.首先，你要自己已经登录过账号不管你的账号是不是有效，登录是必须的。**
 
 **3.有一个稳定的网络连接。尽量是国外的节点。不要开启全局代理。一定不要开启全局代理。**
+
+## 配置说明
+
++ 需要使用 cloudflare 域名邮箱，请自行搜索如何使用 cloudflare 域名邮箱，请自行搜索如何使用。
++ 需要使用 temp-mail.plus 邮箱，请自行搜索如何使用 temp-mail.plus 邮箱。
++ 将 cloudflare 的域名邮箱转发到 temp-mail.plus 邮箱。
+
+
+在使用之前，需要配置环境变量文件。程序目录下有一个 `.env` 文件
+
+```bash
+DOMAIN='xxxxx.me'    # 你的邮箱域名 自行搜索如何使用 cloudflare 邮箱
+TEMP_MAIL='xxxxxx'   # 临时邮箱前缀，可以自定义，不需要后缀; 用的还是https://tempmail.plus/zh/#! 的邮箱
+```
+
+例如，如果你设置：
+```bash
+DOMAIN='wozhangsan.me'
+TEMP_MAIL='ccxxxxcxx'
+```
+那么程序将随机生成 `@wozhangsan.me` 后缀作为注册邮箱。
 
 
 ## 运行方法
@@ -72,3 +91,4 @@ chmod +x ./CursorPro
 2025-01-09 增加了 log 日志，方便调试，增加了退出cursor，自动构建功能
 
 仓库核心源码来自[gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto)；自行优化了验证和邮箱注册逻辑；解决了无法获取邮箱验证码的问题。
+
