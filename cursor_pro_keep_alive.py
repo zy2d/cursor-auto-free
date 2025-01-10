@@ -1,6 +1,7 @@
 import os
 
 from exit_cursor import ExitCursor
+from reset_machine import MachineIDResetter
 
 os.environ["PYTHONVERBOSE"] = "0"
 os.environ["PYINSTALLER_VERBOSE"] = "0"
@@ -221,7 +222,6 @@ class EmailGenerator:
         }
 
 
-
 if __name__ == "__main__":
     print_logo()
     browser_manager = None
@@ -260,6 +260,8 @@ if __name__ == "__main__":
                 update_cursor_auth(
                     email=account, access_token=token, refresh_token=token
                 )
+
+                MachineIDResetter().reset_machine_ids()
             else:
                 print("账户注册失败")
 
