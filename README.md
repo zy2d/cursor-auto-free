@@ -18,9 +18,10 @@ https://github.com/chengazhen/cursor-auto-free/releases
 + 需要使用 cloudflare 域名邮箱，请自行搜索如何使用 cloudflare 域名邮箱，请自行搜索如何使用。
 + 需要使用 temp-mail.plus 邮箱，请自行搜索如何使用 temp-mail.plus 邮箱。
 + 将 cloudflare 的域名邮箱转发到 temp-mail.plus 邮箱。
++ 下载 .env.example 文件到程序所在根目录，并重命名为 .env 文件。
 
 
-在使用之前，需要配置环境变量文件。程序目录下有一个 `.env` 文件
+在使用之前，需要配置环境变量文件。
 
 ```bash
 DOMAIN='xxxxx.me'    # 你的邮箱域名 自行搜索如何使用 cloudflare 邮箱
