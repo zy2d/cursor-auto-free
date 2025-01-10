@@ -16,6 +16,9 @@ class Config:
         # 指定 .env 文件的路径
         dotenv_path = os.path.join(application_path, ".env")
 
+        if not os.path.exists(dotenv_path):
+            raise FileNotFoundError(f"文件 {dotenv_path} 不存在")
+
         # 加载 .env 文件
         load_dotenv(dotenv_path)
 
