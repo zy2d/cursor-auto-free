@@ -11,8 +11,9 @@ logging.basicConfig(
     filename=os.path.join(log_dir, f"{datetime.now().strftime('%Y-%m-%d')}.log"),
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    encoding='utf-8',
+    encoding="utf-8",
 )
+
 
 # 创建控制台处理器
 console_handler = logging.StreamHandler()
@@ -21,6 +22,10 @@ console_handler.setFormatter(logging.Formatter("%(message)s"))
 
 # 将控制台处理器添加到日志记录器
 logging.getLogger().addHandler(console_handler)
+
+# 打印日志目录所在路径
+logging.info(f"Logger initialized, log directory: {os.path.abspath(log_dir)}")
+
 
 def main_task():
     """
@@ -42,12 +47,14 @@ def main_task():
     finally:
         logging.info("Task execution finished.")
 
+
 def some_condition():
     """
     Simulates an error condition. Returns True to trigger an error.
     Replace this logic with actual task conditions.
     """
     return True
+
 
 if __name__ == "__main__":
     # Application workflow
