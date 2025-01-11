@@ -215,13 +215,17 @@ class EmailGenerator:
                 k=12,
             )
         ),
-        first_name="yuyan",
-        last_name="peng",
     ):
         self.domain = Config().get_domain()
         self.default_password = password
-        self.default_first_name = first_name
-        self.default_last_name = last_name
+        self.default_first_name = self.generate_random_name()
+        self.default_last_name = self.generate_random_name()
+
+    def generate_random_name(self, length=6):
+        """生成随机用户名"""
+        first_letter = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        rest_letters = ''.join(random.choices("abcdefghijklmnopqrstuvwxyz", k=length-1))
+        return first_letter + rest_letters
 
     def generate_email(self, length=8):
         """生成随机邮箱地址"""
