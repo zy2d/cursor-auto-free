@@ -1,5 +1,7 @@
 # Cursor Pro 自动化工具使用说明
 
+README also avaiable in: [English](./README.EN.md), [Tiếng Việt](./README.VI.md)
+
 ## 最近有人把软件拿到咸鱼卖的，这种事情尽量少干吧。不至于什么钱都挣。
 
 ## 许可证声明
