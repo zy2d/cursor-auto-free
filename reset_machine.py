@@ -64,17 +64,29 @@ class MachineIDResetter:
                 )
                 return False
 
+            # 检查文件权限
+            if not os.access(self.db_path, os.R_OK | os.W_OK):
+                print(
+                    f"{Fore.RED}{EMOJI['ERROR']} 无法读写配置文件，请检查文件权限！{Style.RESET_ALL}"
+                )
+                return False
+
             # 读取现有配置
             print(f"{Fore.CYAN}{EMOJI['FILE']} 读取当前配置...{Style.RESET_ALL}")
             with open(self.db_path, "r", encoding="utf-8") as f:
                 config = json.load(f)
 
-            # 备份原文件
+            # 只在没有备份文件时创建备份
             backup_path = self.db_path + ".bak"
-            print(
-                f"{Fore.YELLOW}{EMOJI['BACKUP']} 创建配置备份: {backup_path}{Style.RESET_ALL}"
-            )
-            shutil.copy2(self.db_path, backup_path)
+            if not os.path.exists(backup_path):
+                print(
+                    f"{Fore.YELLOW}{EMOJI['BACKUP']} 创建配置备份: {backup_path}{Style.RESET_ALL}"
+                )
+                shutil.copy2(self.db_path, backup_path)
+            else:
+                print(
+                    f"{Fore.YELLOW}{EMOJI['INFO']} 已存在备份文件，跳过备份步骤{Style.RESET_ALL}"
+                )
 
             # 生成新的ID
             print(f"{Fore.CYAN}{EMOJI['RESET']} 生成新的机器标识...{Style.RESET_ALL}")
@@ -95,6 +107,12 @@ class MachineIDResetter:
 
             return True
 
+        except PermissionError as e:
+            print(f"{Fore.RED}{EMOJI['ERROR']} 权限错误: {str(e)}{Style.RESET_ALL}")
+            print(
+                f"{Fore.YELLOW}{EMOJI['INFO']} 请尝试以管理员身份运行此程序{Style.RESET_ALL}"
+            )
+            return False
         except Exception as e:
             print(f"{Fore.RED}{EMOJI['ERROR']} 重置过程出错: {str(e)}{Style.RESET_ALL}")
             return False
