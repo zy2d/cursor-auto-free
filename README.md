@@ -94,5 +94,5 @@ chmod +x ./CursorPro
 2025-01-09 增加了 log 日志，方便调试，增加了退出cursor，自动构建功能
 2025-01-10 修改为使用 cloudflared 域名邮箱
 
-仓库核心源码来自[gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto)；自行优化了验证和邮箱注册逻辑；解决了无法获取邮箱验证码的问题。
+仓库部分源码来自[gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto)；自行优化了验证和邮箱自动注册逻辑；解决了无法获取邮箱验证码的问题。
 
