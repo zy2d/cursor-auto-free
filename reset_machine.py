@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import uuid
 import hashlib
@@ -22,15 +23,24 @@ EMOJI = {
 class MachineIDResetter:
     def __init__(self):
         # 判断操作系统
-        if os.name == "nt":  # Windows
+        if sys.platform == "win32":  # Windows
+            appdata = os.getenv("APPDATA")
+            if appdata is None:
+                raise EnvironmentError("APPDATA 环境变量未设置")
             self.db_path = os.path.join(
-                os.getenv("APPDATA"), "Cursor", "User", "globalStorage", "storage.json"
+                appdata, "Cursor", "User", "globalStorage", "storage.json"
             )
-        else:  # macOS
-            self.db_path = os.path.expanduser(
+        elif sys.platform == "darwin": # macOS
+            self.db_path = os.path.abspath(os.path.expanduser(
                 "~/Library/Application Support/Cursor/User/globalStorage/storage.json"
-            )
-
+            ))
+        elif sys.platform == "linux": # Linux 和其他类Unix系统
+            self.db_path = os.path.abspath(os.path.expanduser(
+                "~/.config/Cursor/User/globalStorage/storage.json"
+            ))
+        else:
+            raise NotImplementedError(f"不支持的操作系统: {sys.platform}")
+        
     def generate_new_ids(self):
         """生成新的机器ID"""
         # 生成新的UUID
