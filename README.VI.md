@@ -81,6 +81,7 @@ Công cụ này chỉ dành cho mục đích học tập và nghiên cứu. Ngư
 
 ## Nhật Ký Cập Nhật
 - **2025-01-09**: Thêm log, chức năng tự xây dựng.  
-- **2025-01-10**: Chuyển sang email tên miền Cloudflare.  
+- **2025-01-10**: Chuyển sang email tên miền Cloudflare. 
+- **2025-01-11**: Thêm chức năng tự động xây dựng, thêm chức năng tự động xây dựng, thêm chức năng tự động xây dựng.
 
 Một phần mã nguồn đến từ [gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto).

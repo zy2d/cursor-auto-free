@@ -82,5 +82,6 @@ This tool is for educational and research purposes only. Users bear full respons
 ## Update Log
 - **2025-01-09**: Added logs and auto-build feature.  
 - **2025-01-10**: Switched to Cloudflare domain email.  
+- **2025-01-11**: Added headless mode and proxy configuration through .env file.
 
 Some source code is from [gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto).
