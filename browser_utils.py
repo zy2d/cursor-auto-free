@@ -2,6 +2,9 @@ from DrissionPage import ChromiumOptions, Chromium
 import sys
 import os
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class BrowserManager:
@@ -24,12 +27,16 @@ class BrowserManager:
             logging.warning(f"警告: {e}")
 
         co.set_user_agent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.92 Safari/537.36"
+            os.getenv('BROWSER_USER_AGENT', "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.92 Safari/537.36")
         )
         co.set_pref("credentials_enable_service", False)
         co.set_argument("--hide-crash-restore-bubble")
+        proxy = os.getenv('BROWSER_PROXY')
+        if proxy:
+            co.set_proxy(proxy)
+        
         co.auto_port()
-        co.headless(True)  # 生产环境使用无头模式
+        co.headless(os.getenv('BROWSER_HEADLESS', 'True').lower() == 'true')  # 生产环境使用无头模式
 
         # Mac 系统特殊处理
         if sys.platform == "darwin":

@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import sys
 
 
 class CursorAuthManager:
@@ -7,14 +8,23 @@ class CursorAuthManager:
 
     def __init__(self):
         # 判断操作系统
-        if os.name == "nt":  # Windows
+        if sys.platform == "win32":  # Windows
+            appdata = os.getenv("APPDATA")
+            if appdata is None:
+                raise EnvironmentError("APPDATA 环境变量未设置")
             self.db_path = os.path.join(
-                os.getenv("APPDATA"), "Cursor", "User", "globalStorage", "state.vscdb"
+                appdata, "Cursor", "User", "globalStorage", "state.vscdb"
             )
-        else:  # macOS
-            self.db_path = os.path.expanduser(
+        elif sys.platform == "darwin": # macOS
+            self.db_path = os.path.abspath(os.path.expanduser(
                 "~/Library/Application Support/Cursor/User/globalStorage/state.vscdb"
-            )
+            ))
+        elif sys.platform == "linux" : # Linux 和其他类Unix系统
+            self.db_path = os.path.abspath(os.path.expanduser(
+                "~/.config/Cursor/User/globalStorage/state.vscdb"
+            ))
+        else:
+            raise NotImplementedError(f"不支持的操作系统: {sys.platform}")
 
     def update_auth(self, email=None, access_token=None, refresh_token=None):
         """

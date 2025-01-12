@@ -89,9 +89,9 @@ def build():
     system = platform.system().lower()
     spec_file = os.path.join("CursorKeepAlive.spec")
 
-    if system not in ["darwin", "windows"]:
-        print(f"\033[91mUnsupported operating system: {system}\033[0m")
-        return
+    # if system not in ["darwin", "windows"]:
+    #     print(f"\033[91mUnsupported operating system: {system}\033[0m")
+    #     return
 
     output_dir = f"dist/{system if system != 'darwin' else 'mac'}"
 
