@@ -28,8 +28,8 @@ https://github.com/chengazhen/cursor-auto-free/releases
 ## 配置说明
 
 + 需要使用 cloudflare 域名邮箱，请自行搜索如何使用 cloudflare 域名邮箱，请自行搜索如何使用。
-+ **（非常重要）** 需要使用 temp-mail.plus 邮箱，请自行搜索如何使用 temp-mail.plus 邮箱。
-+ 将 cloudflare 的域名邮箱转发到 temp-mail.plus 邮箱。
++ **（非常重要）** 需要使用 tempmail.plus 邮箱，请自行搜索如何使用 tempmail.plus 邮箱。
++ 将 cloudflare 的域名邮箱转发到 tempmail.plus 邮箱。
 + 下载 .env.example 文件到程序所在根目录，并重命名为 .env 文件。
 
 
