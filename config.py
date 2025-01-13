@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import sys
+from logger import logging
 
 
 class Config:
@@ -22,11 +23,21 @@ class Config:
         # 加载 .env 文件
         load_dotenv(dotenv_path)
 
+        self.temp_mail = os.getenv("TEMP_MAIL", "").strip()
+        self.domain = os.getenv("DOMAIN", "").strip()
+
+        if not self.temp_mail:
+            raise ValueError("临时邮箱未配置，请在 .env 文件中设置 TEMP_MAIL")
+        if not self.domain:
+            raise ValueError("域名未配置，请在 .env 文件中设置 DOMAIN")
+
     def get_temp_mail(self):
-        return os.getenv("TEMP_MAIL")
+        logging.info(f"\033[32m临时邮箱: {self.temp_mail}\033[0m")
+        return self.temp_mail
 
     def get_domain(self):
-        return os.getenv("DOMAIN")
+        logging.info(f"\033[32m域名: {self.domain}\033[0m")
+        return self.domain
 
 
 # 使用示例
@@ -34,7 +45,7 @@ if __name__ == "__main__":
     try:
         config = Config()
         print("环境变量加载成功！")
-        print(f"临时邮箱: {config.get_temp_mail()}")
-        print(f"域名: {config.get_domain()}")
+        config.get_temp_mail()
+        config.get_domain()
     except ValueError as e:
         print(f"错误: {e}")
