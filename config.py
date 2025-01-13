@@ -26,10 +26,7 @@ class Config:
         self.temp_mail = os.getenv("TEMP_MAIL", "").strip()
         self.domain = os.getenv("DOMAIN", "").strip()
 
-        if not self.temp_mail:
-            raise ValueError("临时邮箱未配置，请在 .env 文件中设置 TEMP_MAIL")
-        if not self.domain:
-            raise ValueError("域名未配置，请在 .env 文件中设置 DOMAIN")
+        self.check_config()
 
     def get_temp_mail(self):
         logging.info(f"\033[32m临时邮箱: {self.temp_mail}\033[0m")
@@ -38,6 +35,15 @@ class Config:
     def get_domain(self):
         logging.info(f"\033[32m域名: {self.domain}\033[0m")
         return self.domain
+
+    def check_config(self):
+        if not self.check_is_valid(self.temp_mail):
+            raise ValueError("临时邮箱未配置，请在 .env 文件中设置 TEMP_MAIL")
+        if not self.check_is_valid(self.domain):
+            raise ValueError("域名未配置，请在 .env 文件中设置 DOMAIN")
+
+    def check_is_valid(self, str):
+        return len(str.strip()) > 0
 
 
 # 使用示例
