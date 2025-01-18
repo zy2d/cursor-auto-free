@@ -30,7 +30,7 @@ Automated account registration and token refreshing to free your hands.
 ### Example `.env` file:
 ```bash
 DOMAIN='xxxxx.me'    # Your email domain (search for Cloudflare email usage)
-TEMP_MAIL='xxxxxx'   # Temporary email prefix (no suffix needed)
+TEMP_MAIL='xxxxxx'   # Temporary email, the target position you set in Cloudflare, using https://tempmail.plus/zh/#!
 ```
 Example:
 ```bash
@@ -84,4 +84,4 @@ This tool is for educational and research purposes only. Users bear full respons
 - **2025-01-10**: Switched to Cloudflare domain email.  
 - **2025-01-11**: Added headless mode and proxy configuration through .env file.
 
-Some source code is from [gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto).
+Inspired by [gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto).

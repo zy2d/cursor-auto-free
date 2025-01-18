@@ -30,7 +30,7 @@ Tự động đăng ký tài khoản, tự động làm mới token, giải phó
 ### Cấu hình tệp `.env`:
 ```bash
 DOMAIN='xxxxx.me'    # Tên miền email của bạn (tự tìm hiểu cách sử dụng Cloudflare email)
-TEMP_MAIL='xxxxxx'   # Tiền tố email tạm thời (không cần hậu tố)
+TEMP_MAIL='xxxxxx'   # Email tạm thời, là địa chỉ đích bạn đã thiết lập trong Cloudflare, sử dụng email từ https://tempmail.plus/zh/#!
 ```
 Ví dụ:
 ```bash
@@ -84,4 +84,4 @@ Công cụ này chỉ dành cho mục đích học tập và nghiên cứu. Ngư
 - **2025-01-10**: Chuyển sang email tên miền Cloudflare. 
 - **2025-01-11**: Thêm chức năng tự động xây dựng, thêm chức năng tự động xây dựng, thêm chức năng tự động xây dựng.
 
-Một phần mã nguồn đến từ [gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto).
+Lấy cảm hứng từ [gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto).

@@ -40,7 +40,7 @@ https://github.com/chengazhen/cursor-auto-free/releases
 
 ```bash
 DOMAIN='xxxxx.me'    # 你的邮箱域名 自行搜索如何使用 cloudflare 邮箱
-TEMP_MAIL='xxxxxx'   # 临时邮箱前缀，可以自定义，不需要后缀; 用的还是https://tempmail.plus/zh/#! 的邮箱
+TEMP_MAIL='xxxxxx'   # 临时邮箱，就是你cloudflare 设置的目标位置 用的还是https://tempmail.plus/zh/#! 的邮箱
 ```
 
 例如，如果你设置：
@@ -112,5 +112,5 @@ chmod +x ./CursorPro
 - **2025-01-10** 修改为使用 cloudflared 域名邮箱
 - **2025-01-11** 增加了可以通过 .env 文件配置 无头模式，增加了代理
 
-仓库部分源码来自[gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto)；自行优化了验证和邮箱自动注册逻辑；解决了无法获取邮箱验证码的问题。
+灵感来自[gpt-cursor-auto](https://github.com/hmhm2022/gpt-cursor-auto)；自行优化了验证和邮箱自动注册逻辑；解决了无法获取邮箱验证码的问题。
 
