@@ -52,7 +52,8 @@ class EmailVerificationHandler:
 
         # 从邮件文本中提取6位数字验证码
         mail_text = mail_detail_data.get("text", "")
-        code_match = re.search(r"\b\d{6}\b", mail_text)
+        # 修改正则表达式，确保 6 位数字不紧跟在字母或域名相关符号后面
+        code_match = re.search(r"(?<![a-zA-Z@.])\b\d{6}\b", mail_text)
 
         if code_match:
             return code_match.group(), first_id
