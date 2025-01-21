@@ -2,6 +2,9 @@
 
 README cũng có sẵn bằng: [中文](./README.md), [English](./README.EN.md)
 
+## Tài Liệu Trực Tuyến
+[cursor-auto-free-doc.vercel.app](https://cursor-auto-free-doc.vercel.app)
+
 ## Lời Nhắc
 Gần đây có người mang phần mềm này bán trên các trang thương mại, việc này nên hạn chế. Không phải cái gì cũng cần kiếm tiền.
 

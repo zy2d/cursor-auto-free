@@ -2,6 +2,9 @@
 
 README also available in: [中文](./README.md), [Tiếng Việt](./README.VI.md)
 
+## Online Documentation
+[cursor-auto-free-doc.vercel.app](https://cursor-auto-free-doc.vercel.app)
+
 ## Note
 Recently, some users have sold this software on platforms like Xianyu. Please avoid such practices—there's no need to earn money this way.
 

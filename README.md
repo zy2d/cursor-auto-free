@@ -12,6 +12,9 @@ README also avaiable in: [English](./README.EN.md), [Tiếng Việt](./README.VI
 但必须遵守以下条件：
 - 非商业性使用 — 您不得将本作品用于商业目的
 
+## 在线文档
+[cursor-auto-free-doc.vercel.app](https://cursor-auto-free-doc.vercel.app)
+
 
 ## 功能介绍
 自动注册账号，自动刷新本地token，解放双手。
