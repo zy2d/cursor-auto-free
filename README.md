@@ -1,5 +1,9 @@
 # Cursor Pro 自动化工具使用说明
->> 最近有人把软件拿到咸鱼卖的，这种事情尽量少干吧。不至于什么钱都挣。
+> 最近有人把软件拿到咸鱼卖的，这种事情尽量少干吧。不至于什么钱都挣。
+
+
+[English doc](./README.EN.md)
+
 
 ## 在线文档
 [cursor-auto-free-doc.vercel.app](https://cursor-auto-free-doc.vercel.app)
