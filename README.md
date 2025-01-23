@@ -8,8 +8,8 @@
 ## 在线文档
 [cursor-auto-free-doc.vercel.app](https://cursor-auto-free-doc.vercel.app)
 
-## 赞助更有动力更新
-![image](./screen/afdian-[未认证]阿臻.jpg)
+## 请我喝杯茶
+![image](./screen/28613e3f3f23a935b66a7ba31ff4e3f.jpg)
 
 
 ## 许可证声明
