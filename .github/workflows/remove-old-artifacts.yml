@@ -4,6 +4,9 @@ on:
   schedule:
     # Every day at 1am
     - cron: '0 1 * * *'
+  # 手动
+  workflow_dispatch:
+  
 
 jobs:
   remove-old-artifacts:
