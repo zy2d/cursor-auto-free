@@ -1,6 +1,10 @@
 import os
+import platform
+import json
+from colorama import Fore, Style
 
 from exit_cursor import ExitCursor
+import patch_cursor_get_machine_id
 from reset_machine import MachineIDResetter
 
 os.environ["PYTHONVERBOSE"] = "0"
@@ -16,6 +20,9 @@ from get_email_code import EmailVerificationHandler
 from logo import print_logo
 from config import Config
 from datetime import datetime
+
+# 定义 EMOJI 字典
+EMOJI = {"ERROR": "❌", "WARNING": "⚠️", "INFO": "ℹ️"}
 
 
 def save_screenshot(tab, prefix="turnstile"):
@@ -344,6 +351,48 @@ def get_user_agent():
         return None
 
 
+def check_cursor_version():
+    """检查cursor版本"""
+    system = platform.system()
+    try:
+        if system == "Darwin":  # macOS
+            package_path = (
+                "/Applications/Cursor.app/Contents/Resources/app/package.json"
+            )
+        elif system == "Windows":  # Windows
+            program_files = os.environ.get("ProgramFiles")
+            package_path = os.path.join(
+                program_files, "Cursor", "resources", "app", "package.json"
+            )
+        else:
+            logging.error(f"不支持的操作系统: {system}")
+            return None
+
+        if not os.path.exists(package_path):
+            logging.warning("未找到 Cursor 安装")
+            return None
+
+        with open(package_path, "r", encoding="utf-8") as f:
+            package_data = json.load(f)
+            version = package_data.get("version")
+            if version:
+                logging.info(f"Cursor 版本: {version}")
+                version_parts = version.split(".")
+                if len(version_parts) >= 2:
+                    major_minor = float(f"{version_parts[0]}.{version_parts[1]}")
+                    if major_minor > 0.44:
+                        return False
+                    else:
+                        return True
+            else:
+                logging.warning("无法获取版本信息")
+                return None
+
+    except Exception as e:
+        logging.error(f"检查版本失败: {str(e)}")
+        return None
+
+
 if __name__ == "__main__":
     print_logo()
     browser_manager = None
@@ -404,7 +453,12 @@ if __name__ == "__main__":
                 )
 
                 logging.info("重置机器码...")
-                MachineIDResetter().reset_machine_ids()
+                # 判断cursor版本是否大于0.44
+                is_cursor_version_greater_than_0_44 = check_cursor_version()
+                if is_cursor_version_greater_than_0_44:
+                    MachineIDResetter().reset_machine_ids()
+                else:
+                    patch_cursor_get_machine_id.patch_cursor_get_machine_id()
                 logging.info("所有操作已完成")
             else:
                 logging.error("获取会话令牌失败，注册流程未完成")
