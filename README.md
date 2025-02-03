@@ -34,9 +34,9 @@ https://linux.do/
 
 
 ## 请我喝杯茶
-![image](./screen/28613e3f3f23a935b66a7ba31ff4e3f.jpg)
+<img src="./screen/28613e3f3f23a935b66a7ba31ff4e3f.jpg" width="300"/>
 
-![image](./screen/mm_facetoface_collect_qrcode_1738583247120.png)
+<img src="./screen/mm_facetoface_collect_qrcode_1738583247120.png" width="300"/>
 
 ## 关注公众号，随时获取仓库更新动态
 
