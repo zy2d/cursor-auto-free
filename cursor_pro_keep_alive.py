@@ -398,7 +398,10 @@ if __name__ == "__main__":
     browser_manager = None
     try:
         logging.info("\n=== 初始化程序 ===")
-        ExitCursor()
+        # 小于0.45的版本需要打补丁
+        less_than_0_45 = check_cursor_version()
+        if less_than_0_45:
+            ExitCursor()
         logging.info("正在初始化浏览器...")
 
         # 获取user_agent
@@ -453,9 +456,8 @@ if __name__ == "__main__":
                 )
 
                 logging.info("重置机器码...")
-                # 判断cursor版本是否大于0.44
-                is_cursor_version_greater_than_0_44 = check_cursor_version()
-                if is_cursor_version_greater_than_0_44:
+                # 判断cursor版本是否小于0.45
+                if less_than_0_45:
                     MachineIDResetter().reset_machine_ids()
                 else:
                     patch_cursor_get_machine_id.patch_cursor_get_machine_id()
