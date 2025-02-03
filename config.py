@@ -25,6 +25,8 @@ class Config:
 
         self.imap = False
         self.temp_mail = os.getenv("TEMP_MAIL", "").strip().split("@")[0]
+        self.temp_mail_epin = os.getenv("TEMP_MAIL_EPIN", "").strip()
+        self.temp_mail_ext = os.getenv("TEMP_MAIL_EXT", "").strip()
         self.domain = os.getenv("DOMAIN", "").strip()
 
         # 如果临时邮箱为null则加载IMAP
@@ -41,6 +43,14 @@ class Config:
     def get_temp_mail(self):
 
         return self.temp_mail
+
+    def get_temp_mail_epin(self):
+
+        return self.temp_mail_epin
+
+    def get_temp_mail_ext(self):
+
+        return self.temp_mail_ext
 
     def get_imap(self):
         if not self.imap:
