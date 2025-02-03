@@ -1,6 +1,7 @@
 import os
 import platform
 import json
+import sys
 from colorama import Fore, Style
 
 from exit_cursor import ExitCursor
@@ -393,11 +394,39 @@ def check_cursor_version():
         return None
 
 
+def reset_machine_id(less_than_0_45):
+    if less_than_0_45:
+        MachineIDResetter().reset_machine_ids()
+    else:
+        patch_cursor_get_machine_id.patch_cursor_get_machine_id()
+
+
 if __name__ == "__main__":
     print_logo()
     browser_manager = None
     try:
         logging.info("\n=== 初始化程序 ===")
+        # 提示用户选择操作模式
+        print("\n请选择操作模式:")
+        print("1. 仅重置机器码")
+        print("2. 完整注册流程")
+        while True:
+            try:
+                choice = int(input("请输入选项 (1 或 2): ").strip())
+                if choice in [1, 2]:
+                    break
+                else:
+                    print("无效的选项,请重新输入")
+            except ValueError:
+                print("请输入有效的数字")
+
+        if choice == 1:
+            # 仅执行重置机器码
+            less_than_0_45 = check_cursor_version()
+            reset_machine_id(less_than_0_45)
+            logging.info("机器码重置完成")
+            sys.exit(0)
+
         # 小于0.45的版本需要打补丁
         less_than_0_45 = check_cursor_version()
         if less_than_0_45:
@@ -456,11 +485,7 @@ if __name__ == "__main__":
                 )
 
                 logging.info("重置机器码...")
-                # 判断cursor版本是否小于0.45
-                if less_than_0_45:
-                    MachineIDResetter().reset_machine_ids()
-                else:
-                    patch_cursor_get_machine_id.patch_cursor_get_machine_id()
+                reset_machine_id(less_than_0_45)
                 logging.info("所有操作已完成")
             else:
                 logging.error("获取会话令牌失败，注册流程未完成")
