@@ -370,7 +370,9 @@ def check_cursor_version():
             return None
 
         if not os.path.exists(package_path):
-            logging.warning("未找到 Cursor 安装")
+            logging.warning(
+                "未找到 Cursor 安装, 或者你自定义了安装路径；默认版本小于0.45"
+            )
             return None
 
         with open(package_path, "r", encoding="utf-8") as f:
@@ -382,9 +384,9 @@ def check_cursor_version():
                 if len(version_parts) >= 2:
                     major_minor = float(f"{version_parts[0]}.{version_parts[1]}")
                     if major_minor > 0.44:
-                        return False
-                    else:
                         return True
+                    else:
+                        return False
             else:
                 logging.warning("无法获取版本信息")
                 return None
@@ -394,18 +396,19 @@ def check_cursor_version():
         return None
 
 
-def reset_machine_id(less_than_0_45):
-    if less_than_0_45:
-        MachineIDResetter().reset_machine_ids()
-    else:
+def reset_machine_id(greater_than_0_45):
+    if greater_than_0_45:
         # 提示请手动执行脚本 https://github.com/chengazhen/cursor-auto-free/blob/main/patch_cursor_get_machine_id.py
         logging.info(
             f"{Fore.RED}请手动执行脚本 https://github.com/chengazhen/cursor-auto-free/blob/main/patch_cursor_get_machine_id.py{Style.RESET_ALL}"
         )
+    else:
+        MachineIDResetter().reset_machine_ids()
 
 
 if __name__ == "__main__":
     print_logo()
+    greater_than_0_45 = check_cursor_version()
     browser_manager = None
     try:
         logging.info("\n=== 初始化程序 ===")
@@ -413,6 +416,7 @@ if __name__ == "__main__":
         print("\n请选择操作模式:")
         print("1. 仅重置机器码")
         print("2. 完整注册流程")
+
         while True:
             try:
                 choice = int(input("请输入选项 (1 或 2): ").strip())
@@ -425,14 +429,12 @@ if __name__ == "__main__":
 
         if choice == 1:
             # 仅执行重置机器码
-            less_than_0_45 = check_cursor_version()
-            reset_machine_id(less_than_0_45)
+            reset_machine_id(greater_than_0_45)
             logging.info("机器码重置完成")
             sys.exit(0)
 
         # 小于0.45的版本需要打补丁
-        less_than_0_45 = check_cursor_version()
-        if less_than_0_45:
+        if not greater_than_0_45:
             ExitCursor()
         logging.info("正在初始化浏览器...")
 
@@ -488,7 +490,7 @@ if __name__ == "__main__":
                 )
 
                 logging.info("重置机器码...")
-                reset_machine_id(less_than_0_45)
+                reset_machine_id(greater_than_0_45)
                 logging.info("所有操作已完成")
             else:
                 logging.error("获取会话令牌失败，注册流程未完成")
