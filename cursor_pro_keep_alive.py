@@ -398,7 +398,10 @@ def reset_machine_id(less_than_0_45):
     if less_than_0_45:
         MachineIDResetter().reset_machine_ids()
     else:
-        patch_cursor_get_machine_id.patch_cursor_get_machine_id()
+        # 提示请手动执行脚本 https://github.com/chengazhen/cursor-auto-free/blob/main/patch_cursor_get_machine_id.py
+        logging.info(
+            f"{Fore.RED}请手动执行脚本 https://github.com/chengazhen/cursor-auto-free/blob/main/patch_cursor_get_machine_id.py{Style.RESET_ALL}"
+        )
 
 
 if __name__ == "__main__":
