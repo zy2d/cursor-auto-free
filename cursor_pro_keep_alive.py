@@ -137,7 +137,9 @@ def handle_turnstile(tab, max_wait_time=60, retry_attempts=3):
                     except Exception as e:
                         logging.debug(f"处理验证时发生异常: {str(e)}")
                         continue
-
+            else:
+                logging.info("未检测到Turnstile验证")
+                return True
             time.sleep(1)
 
         except Exception as e:
