@@ -354,54 +354,16 @@ def get_user_agent():
 
 def check_cursor_version():
     """检查cursor版本"""
-    system = platform.system()
-    try:
-        if system == "Darwin":  # macOS
-            package_path = (
-                "/Applications/Cursor.app/Contents/Resources/app/package.json"
-            )
-        elif system == "Windows":  # Windows
-            program_files = os.environ.get("ProgramFiles")
-            package_path = os.path.join(
-                program_files, "Cursor", "resources", "app", "package.json"
-            )
-        else:
-            logging.error(f"不支持的操作系统: {system}")
-            return None
-
-        if not os.path.exists(package_path):
-            logging.warning(
-                "未找到 Cursor 安装, 或者你自定义了安装路径；默认版本小于0.45"
-            )
-            return None
-
-        with open(package_path, "r", encoding="utf-8") as f:
-            package_data = json.load(f)
-            version = package_data.get("version")
-            if version:
-                logging.info(f"Cursor 版本: {version}")
-                version_parts = version.split(".")
-                if len(version_parts) >= 2:
-                    major_minor = float(f"{version_parts[0]}.{version_parts[1]}")
-                    if major_minor > 0.44:
-                        return True
-                    else:
-                        return False
-            else:
-                logging.warning("无法获取版本信息")
-                return None
-
-    except Exception as e:
-        logging.error(f"检查版本失败: {str(e)}")
-        return None
+    pkg_path, main_path = patch_cursor_get_machine_id.get_cursor_paths()
+    with open(pkg_path, "r", encoding="utf-8") as f:
+        version = json.load(f)["version"]
+    return patch_cursor_get_machine_id.version_check(version, min_version="0.45.0")
 
 
 def reset_machine_id(greater_than_0_45):
     if greater_than_0_45:
         # 提示请手动执行脚本 https://github.com/chengazhen/cursor-auto-free/blob/main/patch_cursor_get_machine_id.py
-        logging.info(
-            f"{Fore.RED}请手动执行脚本 https://github.com/chengazhen/cursor-auto-free/blob/main/patch_cursor_get_machine_id.py{Style.RESET_ALL}"
-        )
+        patch_cursor_get_machine_id.patch_cursor_get_machine_id()
     else:
         MachineIDResetter().reset_machine_ids()
 
