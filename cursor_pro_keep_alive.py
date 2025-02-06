@@ -3,6 +3,8 @@ import platform
 import json
 import sys
 from colorama import Fore, Style
+from enum import Enum
+from typing import Optional
 
 from exit_cursor import ExitCursor
 import patch_cursor_get_machine_id
@@ -26,13 +28,28 @@ from datetime import datetime
 EMOJI = {"ERROR": "❌", "WARNING": "⚠️", "INFO": "ℹ️"}
 
 
-def save_screenshot(tab, prefix="turnstile"):
-    """保存截图
+class VerificationStatus(Enum):
+    """验证状态枚举"""
+
+    PASSWORD_PAGE = "@name=password"
+    CAPTCHA_PAGE = "@data-index=0"
+    ACCOUNT_SETTINGS = "Account Settings"
+
+
+class TurnstileError(Exception):
+    """Turnstile 验证相关异常"""
+
+    pass
+
+
+def save_screenshot(tab, stage: str, timestamp: bool = True) -> None:
+    """
+    保存页面截图
+
     Args:
         tab: 浏览器标签页对象
-        prefix: 文件名前缀
-    Returns:
-        str: 截图文件路径
+        stage: 截图阶段标识
+        timestamp: 是否添加时间戳
     """
     try:
         # 创建 screenshots 目录
@@ -40,27 +57,63 @@ def save_screenshot(tab, prefix="turnstile"):
         if not os.path.exists(screenshot_dir):
             os.makedirs(screenshot_dir)
 
-        # 生成带时间戳的文件名
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{prefix}_{timestamp}.png"
+        # 生成文件名
+        if timestamp:
+            filename = f"turnstile_{stage}_{int(time.time())}.png"
+        else:
+            filename = f"turnstile_{stage}.png"
+
         filepath = os.path.join(screenshot_dir, filename)
 
-        # 使用 get_screenshot 方法保存截图
+        # 保存截图
         tab.get_screenshot(filepath)
-        logging.info(f"已保存截图: {filepath}")
-        return filepath
+        logging.debug(f"截图已保存: {filepath}")
     except Exception as e:
-        logging.error(f"截图保存失败: {str(e)}")
-        return None
+        logging.warning(f"截图保存失败: {str(e)}")
 
 
-def handle_turnstile(tab):
+def check_verification_success(tab) -> Optional[VerificationStatus]:
+    """
+    检查验证是否成功
+
+    Returns:
+        VerificationStatus: 验证成功时返回对应状态，失败返回 None
+    """
+    for status in VerificationStatus:
+        if tab.ele(status.value):
+            logging.info(f"验证成功 - 已到达{status.name}页面")
+            return status
+    return None
+
+
+def handle_turnstile(tab, max_retries: int = 2, retry_interval: tuple = (1, 2)) -> bool:
+    """
+    处理 Turnstile 验证
+
+    Args:
+        tab: 浏览器标签页对象
+        max_retries: 最大重试次数
+        retry_interval: 重试间隔时间范围(最小值, 最大值)
+
+    Returns:
+        bool: 验证是否成功
+
+    Raises:
+        TurnstileError: 验证过程中出现异常
+    """
     logging.info("正在检测 Turnstile 验证...")
-    save_screenshot(tab, "turnstile")
+    save_screenshot(tab, "start")
+
+    retry_count = 0
+
     try:
-        while True:
+        while retry_count < max_retries:
+            retry_count += 1
+            logging.debug(f"第 {retry_count} 次尝试验证")
+
             try:
-                challengeCheck = (
+                # 定位验证框元素
+                challenge_check = (
                     tab.ele("@id=cf-turnstile", timeout=2)
                     .child()
                     .shadow_root.ele("tag:iframe")
@@ -68,30 +121,42 @@ def handle_turnstile(tab):
                     .sr("tag:input")
                 )
 
-                if challengeCheck:
-                    logging.info("检测到 Turnstile 验证，正在处理...")
+                if challenge_check:
+                    logging.info("检测到 Turnstile 验证框，开始处理...")
+                    # 随机延时后点击验证
                     time.sleep(random.uniform(1, 3))
-                    challengeCheck.click()
+                    challenge_check.click()
                     time.sleep(2)
-                    logging.info("Turnstile 验证通过")
-                    save_screenshot(tab, "turnstile_pass")
-                    return True
-            except:
-                pass
 
-            if tab.ele("@name=password"):
-                logging.info("验证成功 - 已到达密码输入页面")
-                break
-            if tab.ele("@data-index=0"):
-                logging.info("验证成功 - 已到达验证码输入页面")
-                break
-            if tab.ele("Account Settings"):
-                logging.info("验证成功 - 已到达账户设置页面")
-                break
-            time.sleep(random.uniform(1, 2))
-    except Exception as e:
-        logging.error(f"Turnstile 验证失败: {str(e)}")
+                    # 保存验证后的截图
+                    save_screenshot(tab, "clicked")
+
+                    # 检查验证结果
+                    if check_verification_success(tab):
+                        logging.info("Turnstile 验证通过")
+                        save_screenshot(tab, "success")
+                        return True
+
+            except Exception as e:
+                logging.debug(f"当前尝试未成功: {str(e)}")
+
+            # 检查是否已经验证成功
+            if check_verification_success(tab):
+                return True
+
+            # 随机延时后继续下一次尝试
+            time.sleep(random.uniform(*retry_interval))
+
+        # 超出最大重试次数
+        logging.error(f"验证失败 - 已达到最大重试次数 {max_retries}")
+        save_screenshot(tab, "failed")
         return False
+
+    except Exception as e:
+        error_msg = f"Turnstile 验证过程发生异常: {str(e)}"
+        logging.error(error_msg)
+        save_screenshot(tab, "error")
+        raise TurnstileError(error_msg)
 
 
 def get_cursor_session_token(tab, max_attempts=3, retry_interval=2):
@@ -320,6 +385,8 @@ if __name__ == "__main__":
     browser_manager = None
     try:
         logging.info("\n=== 初始化程序 ===")
+        # ExitCursor()
+
         # 提示用户选择操作模式
         print("\n请选择操作模式:")
         print("1. 仅重置机器码")
@@ -341,9 +408,6 @@ if __name__ == "__main__":
             logging.info("机器码重置完成")
             sys.exit(0)
 
-        # 小于0.45的版本需要打补丁
-        if not greater_than_0_45:
-            ExitCursor()
         logging.info("正在初始化浏览器...")
 
         # 获取user_agent
