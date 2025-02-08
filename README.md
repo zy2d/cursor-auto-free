@@ -3,6 +3,7 @@
 
 [English doc](./README.EN.md)
 
+## 交流群 QQ 496144102
 
 
 ## 在线文档
