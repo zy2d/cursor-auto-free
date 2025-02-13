@@ -376,8 +376,7 @@ def check_cursor_version():
 
 def reset_machine_id(greater_than_0_45):
     if greater_than_0_45:
-        # 提示请手动执行脚本 https://github.com/chengazhen/cursor-auto-free/blob/main/patch_cursor_get_machine_id.py
-        patch_cursor_get_machine_id.patch_cursor_get_machine_id()
+        print("重置id: 请搜索go-cursor-help")
     else:
         MachineIDResetter().reset_machine_ids()
 
