@@ -386,6 +386,19 @@ def reset_machine_id(greater_than_0_45):
         MachineIDResetter().reset_machine_ids()
 
 
+def print_end_message():
+    logging.info("\n\n\n\n\n")
+    logging.info("=" * 30)
+    logging.info("所有操作已完成")
+    logging.info("\n=== 获取更多信息 ===")
+    logging.info("🔥 QQ交流群: 576045098")
+    logging.info("📺 B站UP主: 想回家的前端")
+    logging.info("=" * 30)
+    logging.info(
+        "请前往开源项目查看更多信息：https://github.com/chengazhen/cursor-auto-free"
+    )
+
+
 if __name__ == "__main__":
     print_logo()
     greater_than_0_45 = check_cursor_version()
@@ -413,6 +426,7 @@ if __name__ == "__main__":
             # 仅执行重置机器码
             reset_machine_id(greater_than_0_45)
             logging.info("机器码重置完成")
+            print_end_message()
             sys.exit(0)
 
         logging.info("正在初始化浏览器...")
@@ -475,7 +489,7 @@ if __name__ == "__main__":
                 logging.info("重置机器码...")
                 reset_machine_id(greater_than_0_45)
                 logging.info("所有操作已完成")
-
+                print_end_message()
             else:
                 logging.error("获取会话令牌失败，注册流程未完成")
 
