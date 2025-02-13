@@ -149,6 +149,9 @@ def handle_turnstile(tab, max_retries: int = 2, retry_interval: tuple = (1, 2)) 
 
         # 超出最大重试次数
         logging.error(f"验证失败 - 已达到最大重试次数 {max_retries}")
+        logging.error(
+            "请前往开源项目查看更多信息：https://github.com/chengazhen/cursor-auto-free"
+        )
         save_screenshot(tab, "failed")
         return False
 
