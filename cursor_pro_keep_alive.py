@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Optional
 
 from exit_cursor import ExitCursor
+import go_cursor_help
 import patch_cursor_get_machine_id
 from reset_machine import MachineIDResetter
 
@@ -376,7 +377,8 @@ def check_cursor_version():
 
 def reset_machine_id(greater_than_0_45):
     if greater_than_0_45:
-        print("重置id: 请搜索go-cursor-help")
+        # 提示请手动执行脚本 https://github.com/chengazhen/cursor-auto-free/blob/main/patch_cursor_get_machine_id.py
+        go_cursor_help.go_cursor_help()
     else:
         MachineIDResetter().reset_machine_ids()
 
