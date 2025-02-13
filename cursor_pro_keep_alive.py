@@ -302,6 +302,9 @@ def sign_up_account(browser, tab):
             usage_info = usage_ele.text
             total_usage = usage_info.split("/")[-1].strip()
             logging.info(f"账户可用额度上限: {total_usage}")
+            logging.info(
+                "请前往开源项目查看更多信息：https://github.com/chengazhen/cursor-auto-free"
+            )
     except Exception as e:
         logging.error(f"获取账户额度信息失败: {str(e)}")
 
@@ -431,7 +434,9 @@ if __name__ == "__main__":
 
         logging.info("正在初始化邮箱验证模块...")
         email_handler = EmailVerificationHandler()
-
+        logging.info(
+            "请前往开源项目查看更多信息：https://github.com/chengazhen/cursor-auto-free"
+        )
         logging.info("\n=== 配置信息 ===")
         login_url = "https://authenticator.cursor.sh"
         sign_up_url = "https://authenticator.cursor.sh/sign-up"
@@ -464,10 +469,13 @@ if __name__ == "__main__":
                 update_cursor_auth(
                     email=account, access_token=token, refresh_token=token
                 )
-
+                logging.info(
+                    "请前往开源项目查看更多信息：https://github.com/chengazhen/cursor-auto-free"
+                )
                 logging.info("重置机器码...")
                 reset_machine_id(greater_than_0_45)
                 logging.info("所有操作已完成")
+
             else:
                 logging.error("获取会话令牌失败，注册流程未完成")
 
