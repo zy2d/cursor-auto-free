@@ -3,7 +3,7 @@
 
 [English doc](./README.EN.md)
 
-## 交流群 QQ 1034718338
+## 交流群 QQ 950373948
 
 
 ## 在线文档
@@ -39,8 +39,5 @@ https://linux.do/
 ## 请我喝杯茶
 <img src="./screen/28613e3f3f23a935b66a7ba31ff4e3f.jpg" width="300"/> <img src="./screen/mm_facetoface_collect_qrcode_1738583247120.png" width="300"/>
 
-## 关注公众号，随时获取仓库更新动态
-
-![image](./screen/qrcode_for_gh_c985615b5f2b_258.jpg)
 
 
