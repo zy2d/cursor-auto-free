@@ -391,7 +391,6 @@ def print_end_message():
     logging.info("=" * 30)
     logging.info("所有操作已完成")
     logging.info("\n=== 获取更多信息 ===")
-    logging.info("🔥 QQ交流群: 1034718338")
     logging.info("📺 B站UP主: 想回家的前端")
     logging.info("=" * 30)
     logging.info(
