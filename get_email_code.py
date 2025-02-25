@@ -8,12 +8,13 @@ import imaplib
 
 
 class EmailVerificationHandler:
-    def __init__(self):
+    def __init__(self,account):
         self.imap = Config().get_imap()
         self.username = Config().get_temp_mail()
         self.epin = Config().get_temp_mail_epin()
         self.session = requests.Session()
         self.emailExtension = Config().get_temp_mail_ext()
+        self.account = account
 
     def get_verification_code(self, max_retries=5, retry_interval=60):
         """
@@ -67,7 +68,7 @@ class EmailVerificationHandler:
             mail.login(self.imap['imap_user'], self.imap['imap_pass'])
             mail.select(self.imap['imap_dir'])
 
-            status, messages = mail.search(None, 'FROM', '"no-reply@cursor.sh"')
+            status, messages = mail.search(None, 'TO', '"'+self.account+'"')
             if status != 'OK':
                 return None
 

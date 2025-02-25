@@ -445,8 +445,6 @@ if __name__ == "__main__":
         # 获取并打印浏览器的user-agent
         user_agent = browser.latest_tab.run_js("return navigator.userAgent")
 
-        logging.info("正在初始化邮箱验证模块...")
-        email_handler = EmailVerificationHandler()
         logging.info(
             "请前往开源项目查看更多信息：https://github.com/chengazhen/cursor-auto-free"
         )
@@ -463,7 +461,13 @@ if __name__ == "__main__":
         first_name = email_generator.default_first_name
         last_name = email_generator.default_last_name
 
+
         logging.info(f"生成的邮箱账号: {account}")
+
+        logging.info("正在初始化邮箱验证模块...")
+        email_handler = EmailVerificationHandler(account)
+
+
         auto_update_cursor_auth = True
 
         tab = browser.latest_tab
