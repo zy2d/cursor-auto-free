@@ -40,4 +40,6 @@ https://linux.do/
 <img src="./screen/28613e3f3f23a935b66a7ba31ff4e3f.jpg" width="300"/> <img src="./screen/mm_facetoface_collect_qrcode_1738583247120.png" width="300"/>
 
 
+## 公众号 回复 1 获取 qq 群
 
+![公众号](./screen/qrcode_for_gh_c985615b5f2b_258.jpg)
