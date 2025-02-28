@@ -10,7 +10,7 @@ from email.parser import Parser
 
 
 class EmailVerificationHandler:
-    def __init__(self):
+    def __init__(self,account):
         self.imap = Config().get_imap()
         self.username = Config().get_temp_mail()
         self.epin = Config().get_temp_mail_epin()
@@ -18,6 +18,7 @@ class EmailVerificationHandler:
         self.emailExtension = Config().get_temp_mail_ext()
         # 获取协议类型，默认为 POP3
         self.protocol = Config().get_protocol() or 'POP3'
+        self.account = account
 
     def get_verification_code(self, max_retries=5, retry_interval=60):
         """
@@ -74,7 +75,7 @@ class EmailVerificationHandler:
             mail.login(self.imap['imap_user'], self.imap['imap_pass'])
             mail.select(self.imap['imap_dir'])
 
-            status, messages = mail.search(None, 'FROM', '"no-reply@cursor.sh"')
+            status, messages = mail.search(None, 'TO', '"'+self.account+'"')
             if status != 'OK':
                 return None
 
