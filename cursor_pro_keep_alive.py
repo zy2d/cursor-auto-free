@@ -328,23 +328,24 @@ class EmailGenerator:
         configInstance = Config()
         configInstance.print_config()
         self.domain = configInstance.get_domain()
+        self.names=self.load_names()
         self.default_password = password
         self.default_first_name = self.generate_random_name()
         self.default_last_name = self.generate_random_name()
+        
+    def load_names(self):
+        with open('names-dataset.txt', 'r') as file:
+            return file.read().split()
+    
+    def generate_random_name(self):
+        """生成随机用户名"""   
+        return random.choice(self.names) 
 
-    def generate_random_name(self, length=6):
-        """生成随机用户名"""
-        first_letter = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-        rest_letters = "".join(
-            random.choices("abcdefghijklmnopqrstuvwxyz", k=length - 1)
-        )
-        return first_letter + rest_letters
 
-    def generate_email(self, length=8):
-        """生成随机邮箱地址"""
-        random_str = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=length))
-        timestamp = str(int(time.time()))[-6:]  # 使用时间戳后6位
-        return f"{random_str}{timestamp}@{self.domain}"
+    def generate_email(self, length=4):
+        """生成随机邮箱地址"""        
+        timestamp = str(int(time.time()))[-length:]  # 使用时间戳后n位
+        return f"{self.default_first_name}{timestamp}@{self.domain}"#
 
     def get_account_info(self):
         """获取完整的账号信息"""
@@ -457,11 +458,13 @@ if __name__ == "__main__":
         mail_url = "https://tempmail.plus"
 
         logging.info("正在生成随机账号信息...")
+        
         email_generator = EmailGenerator()
-        account = email_generator.generate_email()
-        password = email_generator.default_password
         first_name = email_generator.default_first_name
         last_name = email_generator.default_last_name
+        account = email_generator.generate_email()
+        password = email_generator.default_password
+
 
         logging.info(f"生成的邮箱账号: {account}")
         auto_update_cursor_auth = True
