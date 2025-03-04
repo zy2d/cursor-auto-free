@@ -154,7 +154,7 @@ class EmailVerificationHandler:
             
             # 获取最新的10封邮件
             num_messages = len(pop3.list()[1])
-            for i in range(max(1, num_messages-9), num_messages+1):
+            for i in range(num_messages, max(1, num_messages-9), -1):
                 response, lines, octets = pop3.retr(i)
                 msg_content = b'\r\n'.join(lines).decode('utf-8')
                 msg = Parser().parsestr(msg_content)
