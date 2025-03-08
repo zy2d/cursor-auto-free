@@ -4,11 +4,16 @@
 [English doc](./README.EN.md)
 
 
-
-
 ## 在线文档
 [cursor-auto-free-doc.vercel.app](https://cursor-auto-free-doc.vercel.app)
 
+
+## 公众号 回复 1 获取 qq 群
+
+![公众号](./screen/qrcode_for_gh_c985615b5f2b_258.jpg)
+
+## 英文名字集
+https://github.com/toniprada/usa-names-dataset
 
 ## 许可证声明
 本项目采用 [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) 许可证。
@@ -42,6 +47,3 @@ https://linux.do/
  <img src="./screen/mm_facetoface_collect_qrcode_1738583247120.png" width="300"/>
 
 
-## 公众号 回复 1 获取 qq 群
-
-![公众号](./screen/qrcode_for_gh_c985615b5f2b_258.jpg)
