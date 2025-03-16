@@ -10,7 +10,8 @@ def go_cursor_help():
     base_url = "https://aizaozao.com/accelerate.php/https://raw.githubusercontent.com/yuaotian/go-cursor-help/refs/heads/master/scripts/run"
     
     if system == "Darwin":  # macOS
-        cmd = f'curl -k -fsSL {base_url}/cursor_mac_id_modifier.sh | sudo bash'        logging.info("执行macOS命令")
+        cmd = f'curl -k -fsSL {base_url}/cursor_mac_id_modifier.sh | sudo bash'
+        logging.info("执行macOS命令")
         os.system(cmd)
     elif system == "Linux":
         cmd = f'curl -fsSL {base_url}/cursor_linux_id_modifier.sh | sudo bash'
