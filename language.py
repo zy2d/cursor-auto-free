@@ -120,7 +120,10 @@ class Language:
                 "error_prefix": "错误: {error}",
                 
                 # Exit message
-                "program_exit_message": "\n程序执行完毕，按回车键退出..."
+                "program_exit_message": "\n程序执行完毕，按回车键退出...",
+                
+                # File warnings
+                "names_file_not_found": "未找到names-dataset.txt文件!"
             },
             "en": {
                 # System messages
@@ -238,7 +241,10 @@ class Language:
                 "error_prefix": "Error: {error}",
                 
                 # Exit message
-                "program_exit_message": "\nProgram execution completed, press Enter to exit..."
+                "program_exit_message": "\nProgram execution completed, press Enter to exit...",
+                
+                # File warnings
+                "names_file_not_found": "names-dataset.txt file not found!"
             }
         }
     

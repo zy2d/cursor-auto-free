@@ -335,8 +335,14 @@ class EmailGenerator:
         self.default_last_name = self.generate_random_name()
 
     def load_names(self):
-        with open("names-dataset.txt", "r") as file:
-            return file.read().split()
+        try:
+            with open("names-dataset.txt", "r") as file:
+                return file.read().split()
+        except FileNotFoundError:
+            logging.warning(get_translation("names_file_not_found"))
+            # Fallback to a small set of default names if the file is not found
+            return ["John", "Jane", "Alex", "Emma", "Michael", "Olivia", "William", "Sophia", 
+                    "James", "Isabella", "Robert", "Mia", "David", "Charlotte", "Joseph", "Amelia"]
 
     def generate_random_name(self):
         """Generate a random username"""
