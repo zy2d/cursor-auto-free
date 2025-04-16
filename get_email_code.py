@@ -49,7 +49,12 @@ class EmailVerificationHandler:
                         verify_code = self._get_mail_code_by_pop3()
                     if verify_code is not None:
                         return verify_code
-
+                    # 新增标准输入获取验证码逻辑
+                logging.warning("正在尝试从标准输入获取验证码...")
+                user_input = input("请手动输入验证码（直接输入后按回车，或按回车跳过）: ").strip()
+                if user_input:
+                    logging.info("已通过标准输入获取验证码")
+                    return user_input
                 if attempt < max_retries - 1:  # 除了最后一次尝试，都等待
                     logging.warning(f"未获取到验证码，{retry_interval} 秒后重试...")
                     time.sleep(retry_interval)
